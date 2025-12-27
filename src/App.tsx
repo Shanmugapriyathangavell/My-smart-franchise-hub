@@ -27,6 +27,7 @@ import Register from "./pages/Register";
 // 📊 SaaS Pages (PROTECTED)
 import Dashboard from "./pages/Dashboard";
 import Projects from "./pages/Projects";
+import Tasks from "./pages/Tasks";
 import AIWorkspace from "./pages/AIWorkspace";
 import Reports from "./pages/Reports";
 import Franchise from "./pages/Franchise";
@@ -60,7 +61,7 @@ const App = () => (
           <Route path="/security" element={<Security />} />
           <Route path="/compliance" element={<Compliance />} />
 
-          {/* 🔑 AUTH PAGES (UNPROTECTED) */}
+          {/* 🔑 AUTH PAGES */}
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
 
@@ -73,6 +74,7 @@ const App = () => (
               </ProtectedRoute>
             }
           />
+
           <Route
             path="/projects"
             element={
@@ -81,6 +83,16 @@ const App = () => (
               </ProtectedRoute>
             }
           />
+
+          <Route
+            path="/tasks"
+            element={
+              <ProtectedRoute>
+                <Tasks />
+              </ProtectedRoute>
+            }
+          />
+
           <Route
             path="/ai-workspace"
             element={
@@ -89,6 +101,7 @@ const App = () => (
               </ProtectedRoute>
             }
           />
+
           <Route
             path="/reports"
             element={
@@ -97,6 +110,7 @@ const App = () => (
               </ProtectedRoute>
             }
           />
+
           <Route
             path="/franchise"
             element={
@@ -105,6 +119,7 @@ const App = () => (
               </ProtectedRoute>
             }
           />
+
           <Route
             path="/chat"
             element={
@@ -113,6 +128,7 @@ const App = () => (
               </ProtectedRoute>
             }
           />
+
           <Route
             path="/settings"
             element={
@@ -121,6 +137,7 @@ const App = () => (
               </ProtectedRoute>
             }
           />
+
           <Route
             path="/admin"
             element={
@@ -129,6 +146,7 @@ const App = () => (
               </ProtectedRoute>
             }
           />
+
           <Route
             path="/payments"
             element={

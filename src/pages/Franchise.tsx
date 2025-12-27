@@ -6,84 +6,77 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabase";
 import { toast } from "sonner";
 
-/* ========= TYPES ========= */
-
 interface Franchise {
   id: string;
   name: string;
   created_at: string;
 }
 
-/* ========= COMPONENT ========= */
-
 const Franchise = () => {
   const [items, setItems] = useState<Franchise[]>([]);
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    loadFranchises();
-  }, []);
+  const load = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
 
-  const loadFranchises = async () => {
     setLoading(true);
     const { data, error } = await supabase
       .from("franchises")
       .select("*")
+      .eq("user_id", user.id)
       .order("created_at", { ascending: false });
 
-    if (error) {
-      toast.error(error.message);
-    } else {
-      setItems(data || []);
-    }
+    if (error) toast.error(error.message);
+    else setItems(data || []);
     setLoading(false);
   };
 
-  const addFranchise = async () => {
+  const add = async () => {
     if (!name.trim()) return;
 
-    const { error } = await supabase
-      .from("franchises")
-      .insert({ name });
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
 
-    if (error) {
-      toast.error(error.message);
-    } else {
+    const { error } = await supabase.from("franchises").insert({
+      name,
+      user_id: user.id,
+    });
+
+    if (error) toast.error(error.message);
+    else {
       setName("");
-      loadFranchises();
+      load();
     }
   };
+
+  useEffect(() => {
+    load();
+  }, []);
 
   return (
     <DashboardLayout>
       <div className="max-w-5xl mx-auto px-6 py-8 space-y-8">
-        {/* Header */}
+
         <div>
-          <h1 className="text-2xl font-semibold text-foreground">Franchises</h1>
+          <h1 className="text-2xl font-semibold">Franchises</h1>
           <p className="text-sm text-muted-foreground">
-            Track locations and basic performance.
-          </p>
-          <p className="text-xs text-muted-foreground mt-1">
-            Updated a few minutes ago
+            Track franchise locations.
           </p>
         </div>
 
-        {/* Add */}
         <GlassCard className="p-5 space-y-3" hover={false}>
           <Input
             placeholder="Franchise name"
             value={name}
             onChange={(e) => setName(e.target.value)}
           />
-          <Button onClick={addFranchise}>Add franchise</Button>
+          <Button onClick={add}>Add franchise</Button>
         </GlassCard>
 
-        {/* List */}
         <GlassCard className="p-5 space-y-3" hover={false}>
-          {loading && (
-            <p className="text-sm text-muted-foreground">Loading…</p>
-          )}
+          {loading && <p className="text-sm text-muted-foreground">Loading…</p>}
 
           {!loading && items.length === 0 && (
             <p className="text-sm text-muted-foreground">

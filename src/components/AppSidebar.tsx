@@ -2,6 +2,7 @@ import { Link, useLocation } from "react-router-dom";
 import {
   LayoutDashboard,
   FolderKanban,
+  CheckSquare, // ✅ NEW
   MessageSquare,
   BarChart3,
   Store,
@@ -26,6 +27,7 @@ import {
 const menuItems = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
   { title: "Projects", url: "/projects", icon: FolderKanban },
+  { title: "Tasks", url: "/tasks", icon: CheckSquare }, // ✅ ADDED
   { title: "Franchises", url: "/franchise", icon: Store },
   { title: "Reports", url: "/reports", icon: BarChart3 },
   { title: "Chat", url: "/chat", icon: MessageSquare },
@@ -129,4 +131,3 @@ export function AppSidebar() {
     </Sidebar>
   );
 }
-

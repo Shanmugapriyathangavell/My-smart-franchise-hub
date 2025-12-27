@@ -33,11 +33,15 @@ const Projects = () => {
   const [newProjectTitle, setNewProjectTitle] = useState("");
   const [adding, setAdding] = useState(false);
 
-  /* ---------- FETCH ---------- */
+  /* ---------- FETCH PROJECTS ---------- */
 
   const fetchProjects = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
+
+    if (authError || !user) return;
 
     const { data, error } = await supabase
       .from("projects")
@@ -49,37 +53,57 @@ const Projects = () => {
     else setProjects(data || []);
   };
 
+  /* ---------- FETCH TASKS ---------- */
+
   const fetchTasks = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
+
+    if (authError || !user) return;
 
     const { data, error } = await supabase
       .from("tasks")
       .select("*")
-      .eq("user_id", user.id);
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false });
 
     if (error) toast.error(error.message);
     else setTasks(data || []);
   };
 
-  /* ---------- ADD PROJECT ---------- */
+  /* ---------- ADD PROJECT (SAFE) ---------- */
 
   const addProject = async () => {
-    if (!newProjectTitle.trim()) return;
+    if (!newProjectTitle.trim()) {
+      toast.error("Project name is required");
+      return;
+    }
 
     setAdding(true);
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
+
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
+
+    if (authError || !user) {
+      toast.error("You must be logged in");
+      setAdding(false);
+      return;
+    }
 
     const { error } = await supabase.from("projects").insert({
       title: newProjectTitle,
-      user_id: user.id,
+      user_id: user.id, // ✅ GUARANTEED VALID
     });
 
     setAdding(false);
 
-    if (error) toast.error(error.message);
-    else {
+    if (error) {
+      toast.error(error.message);
+    } else {
       setNewProjectTitle("");
       fetchProjects();
     }
@@ -88,13 +112,19 @@ const Projects = () => {
   /* ---------- REMOVE PROJECT ---------- */
 
   const removeProject = async (id: string) => {
-    const ok = window.confirm("Delete this project?");
+    const ok = window.confirm("Delete this project? This cannot be undone.");
     if (!ok) return;
 
     const { error } = await supabase.from("projects").delete().eq("id", id);
+
     if (error) toast.error(error.message);
-    else setProjects((p) => p.filter((x) => x.id !== id));
+    else {
+      setProjects((p) => p.filter((x) => x.id !== id));
+      setTasks((t) => t.filter((x) => x.project_id !== id));
+    }
   };
+
+  /* ---------- LOAD ---------- */
 
   useEffect(() => {
     const load = async () => {
@@ -105,10 +135,12 @@ const Projects = () => {
     load();
   }, []);
 
+  /* ================= UI ================= */
+
   return (
     <DashboardLayout>
       <div className="max-w-6xl mx-auto px-6 py-8 space-y-10">
-
+        {/* Header */}
         <div>
           <h1 className="text-2xl font-semibold">Projects</h1>
           <p className="text-sm text-muted-foreground">
@@ -128,7 +160,7 @@ const Projects = () => {
           </Button>
         </GlassCard>
 
-        {/* List */}
+        {/* Project List */}
         <GlassCard className="p-6 space-y-4">
           {projects.length === 0 && (
             <p className="text-sm text-muted-foreground">
@@ -150,7 +182,7 @@ const Projects = () => {
           ))}
         </GlassCard>
 
-        {/* Tasks */}
+        {/* Tasks Board */}
         {loading ? (
           <p className="text-sm text-muted-foreground">Loading…</p>
         ) : (
@@ -158,6 +190,7 @@ const Projects = () => {
             {["todo", "progress", "done"].map((status) => (
               <div key={status}>
                 <h4 className="font-medium capitalize mb-2">{status}</h4>
+
                 {tasks
                   .filter((t) => t.status === status)
                   .map((t) => (
@@ -166,6 +199,7 @@ const Projects = () => {
                         <span>{t.title}</span>
                         <MoreVertical className="w-4 h-4" />
                       </div>
+
                       <div className="text-xs text-muted-foreground mt-2 flex gap-1">
                         <Calendar className="w-3 h-3" />
                         {new Date(t.created_at).toLocaleDateString()}

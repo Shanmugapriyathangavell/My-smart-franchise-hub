@@ -1,4 +1,26 @@
-# Logs
+# =========================
+# ENVIRONMENT VARIABLES
+# =========================
+.env
+.env.*
+!.env.example
+
+# =========================
+# DEPENDENCIES
+# =========================
+node_modules/
+.pnpm-store/
+
+# =========================
+# BUILD OUTPUT
+# =========================
+dist/
+dist-ssr/
+build/
+
+# =========================
+# LOG FILES
+# =========================
 logs
 *.log
 npm-debug.log*
@@ -7,18 +29,41 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
+# =========================
+# OS FILES
+# =========================
+.DS_Store
+Thumbs.db
 
-# Editor directories and files
+# =========================
+# EDITORS & IDEs
+# =========================
 .vscode/*
 !.vscode/extensions.json
-.idea
-.DS_Store
+.idea/
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+
+# =========================
+# CACHE / TEMP
+# =========================
+*.local
+.cache/
+.eslintcache
+
+# =========================
+# VITE / REACT
+# =========================
+.vite/
+coverage/
+
+# =========================
+# OPTIONAL LOCK FILES
+# (keep only ONE package manager)
+# =========================
+yarn.lock
+pnpm-lock.yaml
+

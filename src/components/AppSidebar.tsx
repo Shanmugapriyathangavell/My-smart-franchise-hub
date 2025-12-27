@@ -2,15 +2,13 @@ import { Link, useLocation } from "react-router-dom";
 import {
   LayoutDashboard,
   FolderKanban,
-  Brain,
   MessageSquare,
   BarChart3,
   Store,
   Settings,
   Shield,
   CreditCard,
-  Sparkles,
-  HelpCircle
+  HelpCircle,
 } from "lucide-react";
 import {
   Sidebar,
@@ -28,17 +26,19 @@ import {
 const menuItems = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
   { title: "Projects", url: "/projects", icon: FolderKanban },
-  { title: "AI Workspace", url: "/ai-workspace", icon: Brain },
-  { title: "Team Chat", url: "/chat", icon: MessageSquare },
+  { title: "Franchises", url: "/franchise", icon: Store },
   { title: "Reports", url: "/reports", icon: BarChart3 },
-  { title: "Franchise", url: "/franchise", icon: Store },
-  { title: "Admin Panel", url: "/admin", icon: Shield },
-  { title: "Payments", url: "/payments", icon: CreditCard },
+  { title: "Chat", url: "/chat", icon: MessageSquare },
+];
+
+const adminItems = [
+  { title: "Admin", url: "/admin", icon: Shield },
+  { title: "Billing", url: "/payments", icon: CreditCard },
   { title: "Settings", url: "/settings", icon: Settings },
 ];
 
-const secondaryItems = [
-  { title: "Help Center", url: "/help", icon: HelpCircle },
+const supportItems = [
+  { title: "Help", url: "/help", icon: HelpCircle },
 ];
 
 export function AppSidebar() {
@@ -46,19 +46,17 @@ export function AppSidebar() {
   const currentPath = location.pathname;
 
   return (
-    <Sidebar className="border-r border-border/50">
-      <SidebarHeader className="border-b border-border/50 p-4">
-        <Link to="/" className="flex items-center gap-2 group">
-          <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center animate-glow">
-            <Sparkles className="w-5 h-5 text-primary-foreground" />
-          </div>
-          <span className="text-lg font-bold gradient-text">WorkFlow.AI</span>
+    <Sidebar className="border-r border-border">
+      <SidebarHeader className="border-b border-border p-4">
+        <Link to="/" className="text-sm font-medium">
+          Workflow
         </Link>
       </SidebarHeader>
 
       <SidebarContent>
+        {/* Main */}
         <SidebarGroup>
-          <SidebarGroupLabel>Main Menu</SidebarGroupLabel>
+          <SidebarGroupLabel>Main</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {menuItems.map((item) => (
@@ -66,7 +64,6 @@ export function AppSidebar() {
                   <SidebarMenuButton
                     asChild
                     isActive={currentPath === item.url}
-                    className={currentPath === item.url ? "bg-sidebar-accent" : ""}
                   >
                     <Link to={item.url}>
                       <item.icon className="w-4 h-4" />
@@ -79,16 +76,38 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
+        {/* Admin */}
         <SidebarGroup>
-          <SidebarGroupLabel>Support</SidebarGroupLabel>
+          <SidebarGroupLabel>Account</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {secondaryItems.map((item) => (
+              {adminItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton
                     asChild
                     isActive={currentPath === item.url}
-                    className={currentPath === item.url ? "bg-sidebar-accent" : ""}
+                  >
+                    <Link to={item.url}>
+                      <item.icon className="w-4 h-4" />
+                      <span>{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {/* Support */}
+        <SidebarGroup>
+          <SidebarGroupLabel>Support</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {supportItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton
+                    asChild
+                    isActive={currentPath === item.url}
                   >
                     <Link to={item.url}>
                       <item.icon className="w-4 h-4" />
@@ -102,11 +121,12 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="border-t border-border/50 p-4">
+      <SidebarFooter className="border-t border-border p-4">
         <div className="text-xs text-muted-foreground">
-          © {new Date().getFullYear()} WorkFlow.AI
+          © {new Date().getFullYear()}
         </div>
       </SidebarFooter>
     </Sidebar>
   );
 }
+

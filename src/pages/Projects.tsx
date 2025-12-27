@@ -3,13 +3,7 @@ import DashboardLayout from "@/components/DashboardLayout";
 import GlassCard from "@/components/GlassCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, Search, Calendar, MoreVertical } from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { Plus, Calendar, MoreVertical } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { toast } from "sonner";
 
@@ -36,18 +30,17 @@ const Projects = () => {
   const [projects, setProjects] = useState<Project[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState("");
 
-  // Create project
+  // Add project
   const [newProjectTitle, setNewProjectTitle] = useState("");
-  const [creatingProject, setCreatingProject] = useState(false);
+  const [addingProject, setAddingProject] = useState(false);
 
   // Edit project
   const [editingProjectId, setEditingProjectId] = useState<string | null>(null);
   const [editingTitle, setEditingTitle] = useState("");
   const [saving, setSaving] = useState(false);
 
-  // Create task
+  // Add task
   const [taskTitle, setTaskTitle] = useState("");
   const [taskDescription, setTaskDescription] = useState("");
   const [selectedProjectId, setSelectedProjectId] = useState("");
@@ -55,7 +48,9 @@ const Projects = () => {
   /* ---------- FETCH ---------- */
 
   const fetchProjects = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
     if (!user) return;
 
     const { data, error } = await supabase
@@ -69,7 +64,9 @@ const Projects = () => {
   };
 
   const fetchTasks = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
     if (!user) return;
 
     const { data, error } = await supabase
@@ -82,16 +79,19 @@ const Projects = () => {
     else setTasks(data || []);
   };
 
-  /* ---------- CREATE PROJECT ---------- */
+  /* ---------- ADD PROJECT ---------- */
 
-  const handleCreateProject = async () => {
+  const handleAddProject = async () => {
     if (!newProjectTitle.trim()) {
-      toast.error("Project title required");
+      toast.error("Project name is required");
       return;
     }
 
-    setCreatingProject(true);
-    const { data: { user } } = await supabase.auth.getUser();
+    setAddingProject(true);
+
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
     if (!user) return;
 
     const { error } = await supabase.from("projects").insert({
@@ -99,11 +99,10 @@ const Projects = () => {
       user_id: user.id,
     });
 
-    setCreatingProject(false);
+    setAddingProject(false);
 
     if (error) toast.error(error.message);
     else {
-      toast.success("Project created");
       setNewProjectTitle("");
       fetchProjects();
     }
@@ -125,18 +124,17 @@ const Projects = () => {
 
     if (error) toast.error(error.message);
     else {
-      toast.success("Project updated");
       setEditingProjectId(null);
       setEditingTitle("");
       fetchProjects();
     }
   };
 
-  /* ---------- DELETE PROJECT ---------- */
+  /* ---------- REMOVE PROJECT ---------- */
 
-  const handleDeleteProject = async (projectId: string) => {
+  const handleRemoveProject = async (projectId: string) => {
     const ok = window.confirm(
-      "Delete this project and all its tasks?"
+      "Remove this project? This will also remove its tasks."
     );
     if (!ok) return;
 
@@ -147,21 +145,22 @@ const Projects = () => {
 
     if (error) toast.error(error.message);
     else {
-      toast.success("Project deleted");
       setProjects((p) => p.filter((x) => x.id !== projectId));
       setTasks((t) => t.filter((x) => x.project_id !== projectId));
     }
   };
 
-  /* ---------- CREATE TASK ---------- */
+  /* ---------- ADD TASK ---------- */
 
-  const handleCreateTask = async () => {
+  const handleAddTask = async () => {
     if (!taskTitle.trim() || !selectedProjectId) {
-      toast.error("Select project and title");
+      toast.error("Select a project and enter a task name");
       return;
     }
 
-    const { data: { user } } = await supabase.auth.getUser();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
     if (!user) return;
 
     const { error } = await supabase.from("tasks").insert({
@@ -174,22 +173,18 @@ const Projects = () => {
 
     if (error) toast.error(error.message);
     else {
-      toast.success("Task created");
       setTaskTitle("");
       setTaskDescription("");
       fetchTasks();
     }
   };
 
-  /* ---------- DELETE TASK ---------- */
+  /* ---------- REMOVE TASK ---------- */
 
-  const deleteTask = async (id: string) => {
+  const handleRemoveTask = async (id: string) => {
     const { error } = await supabase.from("tasks").delete().eq("id", id);
     if (error) toast.error(error.message);
-    else {
-      toast.success("Task deleted");
-      setTasks((t) => t.filter((x) => x.id !== id));
-    }
+    else setTasks((t) => t.filter((x) => x.id !== id));
   };
 
   useEffect(() => {
@@ -205,21 +200,31 @@ const Projects = () => {
     <DashboardLayout>
       <div className="space-y-6">
 
-        {/* Create Project */}
-        <GlassCard className="p-4 flex gap-2">
+        {/* Add Project */}
+        <GlassCard className="p-4 space-y-2">
           <Input
-            placeholder="New project title"
+            placeholder="Project name"
             value={newProjectTitle}
             onChange={(e) => setNewProjectTitle(e.target.value)}
           />
-          <Button onClick={handleCreateProject} disabled={creatingProject}>
-            {creatingProject ? "Creating..." : "Create"}
+          <p className="text-xs text-muted-foreground">
+            Use a short name you’ll recognize later.
+          </p>
+          <Button onClick={handleAddProject} disabled={addingProject}>
+            {addingProject ? "Saving…" : "Add project"}
           </Button>
         </GlassCard>
 
-        {/* Project List */}
+        {/* Projects */}
         <GlassCard className="p-4 space-y-3">
-          <h3 className="font-semibold">Projects</h3>
+          <h3 className="font-medium">Projects</h3>
+
+          {projects.length === 0 && (
+            <p className="text-sm text-muted-foreground">
+              No projects yet. Add one to start organizing work.
+            </p>
+          )}
+
           {projects.map((p) => (
             <div key={p.id} className="flex justify-between items-center">
               {editingProjectId === p.id ? (
@@ -255,10 +260,10 @@ const Projects = () => {
                     </Button>
                     <Button
                       size="sm"
-                      variant="destructive"
-                      onClick={() => handleDeleteProject(p.id)}
+                      variant="outline"
+                      onClick={() => handleRemoveProject(p.id)}
                     >
-                      Delete
+                      Remove
                     </Button>
                   </div>
                 </>
@@ -267,50 +272,56 @@ const Projects = () => {
           ))}
         </GlassCard>
 
-        {/* Create Task */}
+        {/* Add Task */}
         <GlassCard className="p-4 space-y-2">
           <select
             className="w-full border rounded p-2"
             value={selectedProjectId}
             onChange={(e) => setSelectedProjectId(e.target.value)}
           >
-            <option value="">Select Project</option>
+            <option value="">Select project</option>
             {projects.map((p) => (
-              <option key={p.id} value={p.id}>{p.title}</option>
+              <option key={p.id} value={p.id}>
+                {p.title}
+              </option>
             ))}
           </select>
 
           <Input
-            placeholder="Task title"
+            placeholder="Task name"
             value={taskTitle}
             onChange={(e) => setTaskTitle(e.target.value)}
           />
 
           <Input
-            placeholder="Description"
+            placeholder="Optional description"
             value={taskDescription}
             onChange={(e) => setTaskDescription(e.target.value)}
           />
 
-          <Button onClick={handleCreateTask}>
-            <Plus className="w-4 h-4 mr-2" /> Add Task
+          <Button onClick={handleAddTask}>
+            <Plus className="w-4 h-4 mr-2" />
+            Add task
           </Button>
         </GlassCard>
 
         {/* Tasks */}
         {loading ? (
-          <p>Loading...</p>
+          <p className="text-sm text-muted-foreground">Loading data…</p>
         ) : (
           <div className="grid md:grid-cols-3 gap-6">
             {["todo", "progress", "done"].map((status) => (
               <div key={status}>
-                <h4 className="font-semibold capitalize">{status}</h4>
+                <h4 className="font-medium capitalize">
+                  {status === "todo"
+                    ? "To do"
+                    : status === "progress"
+                    ? "In progress"
+                    : "Completed"}
+                </h4>
+
                 {tasks
-                  .filter(
-                    (t) =>
-                      t.status === status &&
-                      t.title.toLowerCase().includes(search.toLowerCase())
-                  )
+                  .filter((t) => t.status === status)
                   .map((t) => (
                     <GlassCard key={t.id} className="p-3 mt-2">
                       <div className="flex justify-between">
@@ -318,7 +329,7 @@ const Projects = () => {
                         <Button
                           size="icon"
                           variant="ghost"
-                          onClick={() => deleteTask(t.id)}
+                          onClick={() => handleRemoveTask(t.id)}
                         >
                           <MoreVertical className="w-4 h-4" />
                         </Button>

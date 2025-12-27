@@ -19,7 +19,6 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabase";
 import { toast } from "sonner";
 
@@ -33,10 +32,7 @@ const Dashboard = () => {
   const fetchStats = async () => {
     setLoading(true);
 
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
+    const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
       toast.error("Authentication required");
       return;
@@ -79,65 +75,37 @@ const Dashboard = () => {
   ];
 
   const taskStatusData = [
-    {
-      name: "Completed",
-      value: completedTasks,
-      color: "hsl(var(--success))",
-    },
-    {
-      name: "Pending",
-      value: totalTasks - completedTasks,
-      color: "hsl(var(--primary))",
-    },
+    { name: "Completed", value: completedTasks, color: "hsl(var(--success))" },
+    { name: "Pending", value: totalTasks - completedTasks, color: "hsl(var(--primary))" },
   ];
 
   return (
     <DashboardLayout>
       <div className="max-w-6xl mx-auto px-6 py-8 space-y-8">
+
         {/* Header */}
-        <div className="flex items-start justify-between">
-          <div>
-            <h1 className="text-2xl font-semibold">Dashboard</h1>
-            <p className="text-sm text-muted-foreground mt-1">
-              Summary of current projects and activity.
-            </p>
-            <p className="text-xs text-muted-foreground mt-2">
-              Updated a few minutes ago
-            </p>
-          </div>
-          <Button variant="outline">View updates</Button>
+        <div>
+          <h1 className="text-2xl font-semibold">Dashboard</h1>
+          <p className="text-sm text-muted-foreground">
+            Overview of current activity and progress.
+          </p>
+          <p className="text-xs text-muted-foreground mt-1">
+            Updated a few minutes ago
+          </p>
         </div>
 
         {/* KPI Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <StatCard
-            title="Projects"
-            value={loading ? "…" : totalProjects}
-            icon={FolderKanban}
-          />
-          <StatCard
-            title="Tasks"
-            value={loading ? "…" : totalTasks}
-            icon={CheckCircle2}
-          />
-          <StatCard
-            title="Completed"
-            value={loading ? "…" : completedTasks}
-            icon={Activity}
-          />
-          <StatCard
-            title="Franchises"
-            value={loading ? "…" : totalFranchises}
-            icon={Users}
-          />
+          <StatCard title="Projects" value={loading ? "…" : totalProjects} icon={FolderKanban} />
+          <StatCard title="Tasks" value={loading ? "…" : totalTasks} icon={CheckCircle2} />
+          <StatCard title="Completed" value={loading ? "…" : completedTasks} icon={Activity} />
+          <StatCard title="Franchises" value={loading ? "…" : totalFranchises} icon={Users} />
         </div>
 
         {/* Charts */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <GlassCard hover={false} className="p-6">
-            <h3 className="text-lg font-medium mb-4">
-              Revenue summary
-            </h3>
+          <GlassCard hover={false}>
+            <h3 className="text-lg font-medium mb-4">Revenue summary</h3>
             <ResponsiveContainer width="100%" height={250}>
               <AreaChart data={revenueData}>
                 <XAxis dataKey="name" />
@@ -151,20 +119,16 @@ const Dashboard = () => {
                 />
               </AreaChart>
             </ResponsiveContainer>
+            <p className="text-xs text-muted-foreground mt-2">
+              Values are estimates.
+            </p>
           </GlassCard>
 
-          <GlassCard hover={false} className="p-6">
-            <h3 className="text-lg font-medium mb-4">
-              Task status
-            </h3>
+          <GlassCard hover={false}>
+            <h3 className="text-lg font-medium mb-4">Task status</h3>
             <ResponsiveContainer width="100%" height={250}>
               <PieChart>
-                <Pie
-                  data={taskStatusData}
-                  dataKey="value"
-                  innerRadius={60}
-                  outerRadius={90}
-                >
+                <Pie data={taskStatusData} dataKey="value" innerRadius={60} outerRadius={90}>
                   {taskStatusData.map((entry, i) => (
                     <Cell key={i} fill={entry.color} />
                   ))}

@@ -31,7 +31,9 @@ const Franchise = () => {
   });
 
   const fetchFranchises = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
     if (!user) return;
 
     const { data } = await supabase
@@ -43,8 +45,15 @@ const Franchise = () => {
     setFranchises(data || []);
   };
 
-  const createFranchise = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
+  const handleAddFranchise = async () => {
+    if (!form.name.trim()) {
+      toast.error("Franchise name is required");
+      return;
+    }
+
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
     if (!user) return;
 
     const { error } = await supabase.from("franchises").insert({
@@ -59,7 +68,6 @@ const Franchise = () => {
 
     if (error) toast.error(error.message);
     else {
-      toast.success("Franchise created");
       setForm({
         name: "",
         location: "",
@@ -72,7 +80,7 @@ const Franchise = () => {
     }
   };
 
-  const updateFranchise = async (id: string) => {
+  const handleUpdateFranchise = async (id: string) => {
     const { error } = await supabase
       .from("franchises")
       .update({
@@ -84,14 +92,15 @@ const Franchise = () => {
 
     if (error) toast.error(error.message);
     else {
-      toast.success("Franchise updated");
       setEditingId(null);
       fetchFranchises();
     }
   };
 
-  const deleteFranchise = async (id: string) => {
-    const ok = window.confirm("Delete this franchise?");
+  const handleRemoveFranchise = async (id: string) => {
+    const ok = window.confirm(
+      "Remove this franchise? This action can’t be undone."
+    );
     if (!ok) return;
 
     const { error } = await supabase
@@ -101,7 +110,6 @@ const Franchise = () => {
 
     if (error) toast.error(error.message);
     else {
-      toast.success("Franchise deleted");
       setFranchises((f) => f.filter((x) => x.id !== id));
     }
   };
@@ -120,6 +128,7 @@ const Franchise = () => {
     <DashboardLayout>
       <div className="space-y-6">
 
+        {/* Summary */}
         <div className="grid md:grid-cols-4 gap-6">
           <StatCard title="Franchises" value={franchises.length} icon={MapPin} />
           <StatCard title="Revenue" value={`₹${totalRevenue}`} icon={DollarSign} />
@@ -127,34 +136,97 @@ const Franchise = () => {
           <StatCard title="Conversion" value={`${conversion}%`} icon={TrendingUp} />
         </div>
 
+        {/* Add Franchise */}
         <GlassCard className="p-4 space-y-2">
-          <Input placeholder="Name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
-          <Input placeholder="Location" value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} />
-          <Input placeholder="Manager" value={form.manager} onChange={(e) => setForm({ ...form, manager: e.target.value })} />
-          <Input placeholder="Revenue" type="number" value={form.revenue} onChange={(e) => setForm({ ...form, revenue: e.target.value })} />
-          <Input placeholder="Leads" type="number" value={form.leads} onChange={(e) => setForm({ ...form, leads: e.target.value })} />
-          <Input placeholder="Sales" type="number" value={form.sales} onChange={(e) => setForm({ ...form, sales: e.target.value })} />
-          <Button onClick={createFranchise}><Plus className="w-4 h-4 mr-2" />Add Franchise</Button>
+          <Input
+            placeholder="Franchise name"
+            value={form.name}
+            onChange={(e) => setForm({ ...form, name: e.target.value })}
+          />
+          <Input
+            placeholder="Location"
+            value={form.location}
+            onChange={(e) => setForm({ ...form, location: e.target.value })}
+          />
+          <Input
+            placeholder="Manager"
+            value={form.manager}
+            onChange={(e) => setForm({ ...form, manager: e.target.value })}
+          />
+          <Input
+            placeholder="Monthly revenue (estimate)"
+            type="number"
+            value={form.revenue}
+            onChange={(e) => setForm({ ...form, revenue: e.target.value })}
+          />
+          <Input
+            placeholder="Leads so far"
+            type="number"
+            value={form.leads}
+            onChange={(e) => setForm({ ...form, leads: e.target.value })}
+          />
+          <Input
+            placeholder="Sales completed"
+            type="number"
+            value={form.sales}
+            onChange={(e) => setForm({ ...form, sales: e.target.value })}
+          />
+
+          <Button onClick={handleAddFranchise}>
+            <Plus className="w-4 h-4 mr-2" />
+            Add franchise
+          </Button>
         </GlassCard>
 
+        {/* Franchise List */}
         <div className="grid md:grid-cols-2 gap-6">
+          {franchises.length === 0 && (
+            <p className="text-sm text-muted-foreground">
+              No franchises added yet.
+            </p>
+          )}
+
           {franchises.map((f) => (
             <GlassCard key={f.id} className="p-4 space-y-2">
-              <h4 className="font-semibold">{f.name}</h4>
+              <h4 className="font-medium">{f.name}</h4>
               <p className="text-sm text-muted-foreground">{f.location}</p>
 
               {editingId === f.id ? (
                 <>
-                  <Input placeholder="Revenue" type="number" value={form.revenue} onChange={(e) => setForm({ ...form, revenue: e.target.value })} />
-                  <Input placeholder="Leads" type="number" value={form.leads} onChange={(e) => setForm({ ...form, leads: e.target.value })} />
-                  <Input placeholder="Sales" type="number" value={form.sales} onChange={(e) => setForm({ ...form, sales: e.target.value })} />
-                  <Button onClick={() => updateFranchise(f.id)}>Save</Button>
+                  <Input
+                    placeholder="Revenue"
+                    type="number"
+                    value={form.revenue}
+                    onChange={(e) =>
+                      setForm({ ...form, revenue: e.target.value })
+                    }
+                  />
+                  <Input
+                    placeholder="Leads"
+                    type="number"
+                    value={form.leads}
+                    onChange={(e) =>
+                      setForm({ ...form, leads: e.target.value })
+                    }
+                  />
+                  <Input
+                    placeholder="Sales"
+                    type="number"
+                    value={form.sales}
+                    onChange={(e) =>
+                      setForm({ ...form, sales: e.target.value })
+                    }
+                  />
+                  <Button onClick={() => handleUpdateFranchise(f.id)}>
+                    Save
+                  </Button>
                 </>
               ) : (
                 <>
                   <p>Revenue: ₹{f.revenue ?? 0}</p>
                   <p>Leads: {f.leads ?? 0}</p>
                   <p>Sales: {f.sales ?? 0}</p>
+
                   <div className="flex gap-2">
                     <Button
                       size="sm"
@@ -173,10 +245,10 @@ const Franchise = () => {
                     </Button>
                     <Button
                       size="sm"
-                      variant="destructive"
-                      onClick={() => deleteFranchise(f.id)}
+                      variant="outline"
+                      onClick={() => handleRemoveFranchise(f.id)}
                     >
-                      Delete
+                      Remove
                     </Button>
                   </div>
                 </>
@@ -184,7 +256,6 @@ const Franchise = () => {
             </GlassCard>
           ))}
         </div>
-
       </div>
     </DashboardLayout>
   );

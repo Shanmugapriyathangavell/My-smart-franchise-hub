@@ -3,6 +3,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import GlassCard from "@/components/GlassCard";
 import { Button } from "@/components/ui/button";
+import chennaiImage from "@/assets/chennai-street.jpg";
 
 const Landing = () => {
   return (
@@ -11,23 +12,34 @@ const Landing = () => {
 
       <main className="max-w-6xl mx-auto px-6 py-20 space-y-20">
         {/* Hero */}
-        <section className="space-y-6 max-w-3xl">
-          <h1 className="text-3xl font-semibold">
-            Franchise and project tracking in one place
-          </h1>
+        <section className="grid lg:grid-cols-2 gap-12 items-center">
+          <div className="space-y-6 max-w-xl">
+            <h1 className="text-3xl font-semibold">
+              Franchise and project tracking in one place
+            </h1>
 
-          <p className="text-sm text-muted-foreground">
-            A simple internal tool to track projects, tasks, and franchise
-            performance over time.
-          </p>
+            <p className="text-sm text-muted-foreground">
+              A simple internal tool to track projects, tasks, and franchise
+              performance over time.
+            </p>
 
-          <div className="flex gap-3">
-            <Link to="/register">
-              <Button>Add account</Button>
-            </Link>
-            <Link to="/login">
-              <Button variant="outline">Log in</Button>
-            </Link>
+            <div className="flex gap-3">
+              <Link to="/register">
+                <Button>Add account</Button>
+              </Link>
+              <Link to="/login">
+                <Button variant="outline">Log in</Button>
+              </Link>
+            </div>
+          </div>
+
+          {/* Real Chennai image */}
+          <div className="rounded-lg overflow-hidden border bg-muted/20 animate-fade-in">
+            <img
+              src={chennaiImage}
+              alt="Street view in Chennai"
+              className="w-full h-full object-cover"
+            />
           </div>
         </section>
 
@@ -67,4 +79,3 @@ const Landing = () => {
 };
 
 export default Landing;
-

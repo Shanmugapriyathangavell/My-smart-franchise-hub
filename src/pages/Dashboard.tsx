@@ -93,18 +93,19 @@ const Dashboard = () => {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
+      <div className="max-w-6xl mx-auto px-6 py-8 space-y-8">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-start justify-between">
           <div>
-            <h1 className="text-2xl font-semibold mb-1">Dashboard</h1>
-            <p className="text-sm text-muted-foreground">
+            <h1 className="text-2xl font-semibold">Dashboard</h1>
+            <p className="text-sm text-muted-foreground mt-1">
               Summary of current projects and activity.
             </p>
+            <p className="text-xs text-muted-foreground mt-2">
+              Updated a few minutes ago
+            </p>
           </div>
-          <Button variant="outline">
-            View updates
-          </Button>
+          <Button variant="outline">View updates</Button>
         </div>
 
         {/* KPI Cards */}
@@ -133,7 +134,7 @@ const Dashboard = () => {
 
         {/* Charts */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <GlassCard hover={false}>
+          <GlassCard hover={false} className="p-6">
             <h3 className="text-lg font-medium mb-4">
               Revenue summary
             </h3>
@@ -152,7 +153,7 @@ const Dashboard = () => {
             </ResponsiveContainer>
           </GlassCard>
 
-          <GlassCard hover={false}>
+          <GlassCard hover={false} className="p-6">
             <h3 className="text-lg font-medium mb-4">
               Task status
             </h3>

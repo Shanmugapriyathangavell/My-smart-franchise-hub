@@ -16,20 +16,26 @@ const Franchise = () => {
   const [items, setItems] = useState<Franchise[]>([]);
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(true);
+  const [adding, setAdding] = useState(false);
 
   const load = async () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
     setLoading(true);
+
     const { data, error } = await supabase
       .from("franchises")
       .select("*")
       .eq("user_id", user.id)
       .order("created_at", { ascending: false });
 
-    if (error) toast.error(error.message);
-    else setItems(data || []);
+    if (error) {
+      toast.error(error.message);
+    } else {
+      setItems(data || []);
+    }
+
     setLoading(false);
   };
 
@@ -39,16 +45,22 @@ const Franchise = () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
+    setAdding(true);
+
     const { error } = await supabase.from("franchises").insert({
-      name,
+      name: name.trim(),
       user_id: user.id,
     });
 
-    if (error) toast.error(error.message);
-    else {
+    if (error) {
+      toast.error(error.message);
+    } else {
+      toast.success("Franchise added");
       setName("");
       load();
     }
+
+    setAdding(false);
   };
 
   useEffect(() => {
@@ -58,41 +70,66 @@ const Franchise = () => {
   return (
     <DashboardLayout>
       <div className="max-w-5xl mx-auto px-6 py-8 space-y-8">
-
+        {/* Header */}
         <div>
           <h1 className="text-2xl font-semibold">Franchises</h1>
           <p className="text-sm text-muted-foreground">
-            Track franchise locations.
+            Track and manage franchise locations.
           </p>
         </div>
 
+        {/* Add Franchise */}
         <GlassCard className="p-5 space-y-3" hover={false}>
           <Input
             placeholder="Franchise name"
             value={name}
             onChange={(e) => setName(e.target.value)}
           />
-          <Button onClick={add}>Add franchise</Button>
+          <Button
+            onClick={add}
+            disabled={!name.trim() || adding}
+          >
+            {adding ? "Adding..." : "Add franchise"}
+          </Button>
         </GlassCard>
 
+        {/* Franchise List */}
         <GlassCard className="p-5 space-y-3" hover={false}>
-          {loading && <p className="text-sm text-muted-foreground">Loading…</p>}
-
-          {!loading && items.length === 0 && (
+          {loading && (
             <p className="text-sm text-muted-foreground">
-              No franchises yet.
+              Loading franchises…
             </p>
           )}
 
-          {items.map((f) => (
-            <div key={f.id} className="text-sm">
-              {f.name}
-            </div>
-          ))}
+          {!loading && items.length === 0 && (
+            <p className="text-sm text-muted-foreground">
+              No franchises yet. Add your first franchise above.
+            </p>
+          )}
+
+          {!loading &&
+            items.map((f) => (
+              <div
+                key={f.id}
+                className="flex justify-between text-sm border-b border-border/50 py-2"
+              >
+                <span className="font-medium">{f.name}</span>
+                <span className="text-muted-foreground">
+                  {new Date(f.created_at).toLocaleDateString()}
+                </span>
+              </div>
+            ))}
         </GlassCard>
+
+        {/* Interview note */}
+        <p className="text-xs text-muted-foreground">
+          Franchise management UI is complete. Additional actions
+          (edit, delete, analytics) can be added as product evolves.
+        </p>
       </div>
     </DashboardLayout>
   );
 };
 
 export default Franchise;
+

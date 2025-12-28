@@ -1,41 +1,28 @@
+import GlassCard from "@/components/GlassCard";
 import { LucideIcon } from "lucide-react";
-import GlassCard from "./GlassCard";
-import { cn } from "@/lib/utils";
 
 interface StatCardProps {
   title: string;
-  value: string | number;
+  value: number;
   icon: LucideIcon;
-  trend?: {
-    value: number;
-    isPositive: boolean;
-  };
-  className?: string;
 }
 
-const StatCard = ({ title, value, icon: Icon, trend, className }: StatCardProps) => {
+const StatCard = ({ title, value, icon: Icon }: StatCardProps) => {
   return (
-    <GlassCard className={cn("relative overflow-hidden", className)}>
-      <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-primary opacity-10 rounded-full blur-3xl" />
-      
-      <div className="relative">
-        <div className="flex items-start justify-between mb-4">
-          <div className="p-3 bg-gradient-primary rounded-lg">
-            <Icon className="w-6 h-6 text-primary-foreground" />
-          </div>
-          
-          {trend && (
-            <div className={cn(
-              "text-sm font-medium",
-              trend.isPositive ? "text-success" : "text-destructive"
-            )}>
-              {trend.isPositive ? "+" : ""}{trend.value}%
-            </div>
-          )}
-        </div>
+    <GlassCard className="p-6" hover={false}>
+      <div className="flex items-center gap-4">
         
-        <h3 className="text-sm text-muted-foreground mb-1">{title}</h3>
-        <p className="text-3xl font-bold">{value}</p>
+        {/* Icon */}
+        <div className="p-3 rounded-lg bg-primary/10">
+          <Icon className="h-6 w-6 text-primary" />
+        </div>
+
+        {/* Text */}
+        <div>
+          <p className="text-sm text-muted-foreground">{title}</p>
+          <p className="text-2xl font-bold">{value}</p>
+        </div>
+
       </div>
     </GlassCard>
   );

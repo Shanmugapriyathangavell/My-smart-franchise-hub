@@ -24,8 +24,13 @@ const Navbar = ({ onMenuClick, showMenu = false }: NavbarProps) => {
       <div className="container mx-auto px-4 h-14 flex items-center justify-between">
         
         {/* Logo */}
-        <Link to="/" className="text-base font-medium">
-          Workflow
+        <Link to="/" className="flex flex-col leading-tight">
+          <span className="text-base font-semibold">
+            Smart Franchise Hub
+          </span>
+          <span className="text-[10px] text-muted-foreground hidden sm:block">
+            Built in Chennai 🇮🇳
+          </span>
         </Link>
 
         {/* Desktop Navigation */}

@@ -16,19 +16,19 @@ const Payments = () => {
   const plans = [
     {
       name: "Free",
-      price: "0",
+      price: "₹0",
       description: "Perfect for trying out WorkFlow.AI",
       features: [
         "Up to 5 projects",
         "Basic AI features",
         "Community support",
-        "1GB storage"
+        "1GB storage",
       ],
-      current: false
+      current: false,
     },
     {
       name: "Pro",
-      price: "49",
+      price: "₹1,999",
       description: "For growing teams and businesses",
       features: [
         "Unlimited projects",
@@ -36,9 +36,9 @@ const Payments = () => {
         "Priority support",
         "50GB storage",
         "Custom integrations",
-        "Analytics dashboard"
+        "Analytics dashboard",
       ],
-      current: true
+      current: true,
     },
     {
       name: "Enterprise",
@@ -50,17 +50,17 @@ const Payments = () => {
         "Custom AI training",
         "Unlimited storage",
         "SLA guarantee",
-        "On-premise deployment"
+        "On‑premise deployment",
       ],
-      current: false
-    }
+      current: false,
+    },
   ];
 
   const invoices = [
-    { id: "INV-001", date: "2025-01-01", amount: "$49.00", status: "paid", plan: "Pro" },
-    { id: "INV-002", date: "2024-12-01", amount: "$49.00", status: "paid", plan: "Pro" },
-    { id: "INV-003", date: "2024-11-01", amount: "$49.00", status: "paid", plan: "Pro" },
-    { id: "INV-004", date: "2024-10-01", amount: "$49.00", status: "paid", plan: "Pro" },
+    { id: "INV-001", date: "2025-01-01", amount: "₹1,999", status: "paid", plan: "Pro" },
+    { id: "INV-002", date: "2024-12-01", amount: "₹1,999", status: "paid", plan: "Pro" },
+    { id: "INV-003", date: "2024-11-01", amount: "₹1,999", status: "paid", plan: "Pro" },
+    { id: "INV-004", date: "2024-10-01", amount: "₹1,999", status: "paid", plan: "Pro" },
   ];
 
   return (
@@ -69,7 +69,9 @@ const Payments = () => {
         {/* Header */}
         <div>
           <h1 className="text-3xl font-bold mb-2">Payments & Subscription</h1>
-          <p className="text-muted-foreground">Manage your subscription and billing</p>
+          <p className="text-muted-foreground">
+            Manage your subscription and billing
+          </p>
         </div>
 
         {/* Current Plan */}
@@ -79,7 +81,8 @@ const Payments = () => {
               <p className="text-sm text-muted-foreground mb-1">Current Plan</p>
               <h3 className="text-3xl font-bold">Pro Plan</h3>
               <p className="text-muted-foreground mt-2">
-                Next billing date: <span className="font-medium">February 1, 2025</span>
+                Next billing date:{" "}
+                <span className="font-medium">February 1, 2025</span>
               </p>
             </div>
             <div className="flex gap-3">
@@ -96,8 +99,11 @@ const Payments = () => {
               <CreditCard className="w-5 h-5" />
               Payment Method
             </h3>
-            <Button variant="outline" size="sm">Add New</Button>
+            <Button variant="outline" size="sm">
+              Add New
+            </Button>
           </div>
+
           <div className="p-4 border border-border/50 rounded-lg flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className="w-12 h-8 bg-gradient-primary rounded flex items-center justify-center text-primary-foreground font-bold text-xs">
@@ -105,7 +111,9 @@ const Payments = () => {
               </div>
               <div>
                 <p className="font-medium">•••• •••• •••• 4242</p>
-                <p className="text-sm text-muted-foreground">Expires 12/2026</p>
+                <p className="text-sm text-muted-foreground">
+                  Expires 12/2026
+                </p>
               </div>
             </div>
             <Badge className="bg-success/20 text-success">Default</Badge>
@@ -119,21 +127,29 @@ const Payments = () => {
             {plans.map((plan, index) => (
               <GlassCard
                 key={index}
-                className={`text-center ${plan.current ? "ring-2 ring-primary" : ""}`}
+                className={`text-center ${
+                  plan.current ? "ring-2 ring-primary" : ""
+                }`}
               >
                 {plan.current && (
                   <div className="inline-block px-3 py-1 bg-gradient-primary text-primary-foreground text-sm font-medium rounded-full mb-4">
                     Current Plan
                   </div>
                 )}
+
                 <h3 className="text-2xl font-bold mb-2">{plan.name}</h3>
+
                 <div className="mb-4">
-                  <span className="text-4xl font-bold">${plan.price}</span>
+                  <span className="text-4xl font-bold">{plan.price}</span>
                   {plan.price !== "Custom" && (
-                    <span className="text-muted-foreground">/month</span>
+                    <span className="text-muted-foreground"> / month</span>
                   )}
                 </div>
-                <p className="text-muted-foreground mb-6">{plan.description}</p>
+
+                <p className="text-muted-foreground mb-6">
+                  {plan.description}
+                </p>
+
                 <ul className="space-y-3 mb-8 text-left">
                   {plan.features.map((feature, fIndex) => (
                     <li key={fIndex} className="flex items-center gap-2">
@@ -142,9 +158,12 @@ const Payments = () => {
                     </li>
                   ))}
                 </ul>
+
                 <Button
                   className={`w-full ${
-                    plan.current ? "bg-gradient-primary text-primary-foreground" : ""
+                    plan.current
+                      ? "bg-gradient-primary text-primary-foreground"
+                      : ""
                   }`}
                   variant={plan.current ? "default" : "outline"}
                   disabled={plan.current}
@@ -180,7 +199,9 @@ const Payments = () => {
               <TableBody>
                 {invoices.map((invoice) => (
                   <TableRow key={invoice.id}>
-                    <TableCell className="font-medium">{invoice.id}</TableCell>
+                    <TableCell className="font-medium">
+                      {invoice.id}
+                    </TableCell>
                     <TableCell>{invoice.date}</TableCell>
                     <TableCell>{invoice.plan}</TableCell>
                     <TableCell>{invoice.amount}</TableCell>

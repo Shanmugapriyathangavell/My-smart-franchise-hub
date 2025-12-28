@@ -4,6 +4,7 @@ import GlassCard from "@/components/GlassCard";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabase";
+import { logActivity } from "@/lib/activity";
 import { toast } from "sonner";
 
 /* ========= TYPES ========= */
@@ -27,11 +28,8 @@ const Tasks = () => {
   const [projects, setProjects] = useState<Project[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
-
   const [title, setTitle] = useState("");
   const [projectId, setProjectId] = useState("");
-
-  /* ---------- LOAD ---------- */
 
   const load = async () => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -40,16 +38,8 @@ const Tasks = () => {
     setLoading(true);
 
     const [p, t] = await Promise.all([
-      supabase
-        .from("projects")
-        .select("id, title")
-        .eq("user_id", user.id),
-
-      supabase
-        .from("tasks")
-        .select("*")
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: false }),
+      supabase.from("projects").select("id, title").eq("user_id", user.id),
+      supabase.from("tasks").select("*").eq("user_id", user.id),
     ]);
 
     if (p.error) toast.error(p.error.message);
@@ -65,7 +55,7 @@ const Tasks = () => {
 
   const addTask = async () => {
     if (!title.trim() || !projectId) {
-      toast.error("Select a project and enter a task name");
+      toast.error("Enter task and select project");
       return;
     }
 
@@ -79,8 +69,10 @@ const Tasks = () => {
       status: "todo",
     });
 
-    if (error) toast.error(error.message);
-    else {
+    if (error) {
+      toast.error(error.message);
+    } else {
+      await logActivity(user.id, `Added task "${title}"`);
       setTitle("");
       setProjectId("");
       load();
@@ -89,8 +81,17 @@ const Tasks = () => {
 
   /* ---------- UPDATE STATUS ---------- */
 
-  const updateStatus = async (id: string, status: Task["status"]) => {
-    await supabase.from("tasks").update({ status }).eq("id", id);
+  const updateStatus = async (task: Task, status: Task["status"]) => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    await supabase.from("tasks").update({ status }).eq("id", task.id);
+
+    await logActivity(
+      user.id,
+      `Marked task "${task.title}" as ${status}`
+    );
+
     load();
   };
 
@@ -110,7 +111,7 @@ const Tasks = () => {
         </div>
 
         {/* Add Task */}
-        <GlassCard className="p-5 space-y-3" hover={false}>
+        <GlassCard className="p-5 space-y-3">
           <Input
             placeholder="Task title"
             value={title}
@@ -136,12 +137,6 @@ const Tasks = () => {
         {/* Task Board */}
         {loading ? (
           <p className="text-sm text-muted-foreground">Loading…</p>
-        ) : tasks.length === 0 ? (
-          <GlassCard className="p-5" hover={false}>
-            <p className="text-sm text-muted-foreground">
-              No tasks yet. Add one to get started.
-            </p>
-          </GlassCard>
         ) : (
           <div className="grid md:grid-cols-3 gap-6">
             {["todo", "progress", "done"].map((status) => (
@@ -165,7 +160,7 @@ const Tasks = () => {
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => updateStatus(t.id, "todo")}
+                            onClick={() => updateStatus(t, "todo")}
                           >
                             Todo
                           </Button>
@@ -174,7 +169,7 @@ const Tasks = () => {
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => updateStatus(t.id, "progress")}
+                            onClick={() => updateStatus(t, "progress")}
                           >
                             Progress
                           </Button>
@@ -183,7 +178,7 @@ const Tasks = () => {
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => updateStatus(t.id, "done")}
+                            onClick={() => updateStatus(t, "done")}
                           >
                             Done
                           </Button>

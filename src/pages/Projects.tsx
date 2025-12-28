@@ -3,8 +3,9 @@ import DashboardLayout from "@/components/DashboardLayout";
 import GlassCard from "@/components/GlassCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Calendar, MoreVertical } from "lucide-react";
+import { Calendar } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import { logActivity } from "@/lib/activity";
 import { toast } from "sonner";
 
 /* ================= TYPES ================= */
@@ -29,51 +30,40 @@ const Projects = () => {
   const [projects, setProjects] = useState<Project[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
-
-  const [newProjectTitle, setNewProjectTitle] = useState("");
   const [adding, setAdding] = useState(false);
+  const [newProjectTitle, setNewProjectTitle] = useState("");
 
-  /* ---------- FETCH PROJECTS ---------- */
+  /* ---------- LOAD DATA ---------- */
 
-  const fetchProjects = async () => {
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
+  const loadData = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
 
-    if (authError || !user) return;
+    setLoading(true);
 
-    const { data, error } = await supabase
-      .from("projects")
-      .select("*")
-      .eq("user_id", user.id)
-      .order("created_at", { ascending: false });
+    const [p, t] = await Promise.all([
+      supabase
+        .from("projects")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false }),
 
-    if (error) toast.error(error.message);
-    else setProjects(data || []);
+      supabase
+        .from("tasks")
+        .select("*")
+        .eq("user_id", user.id),
+    ]);
+
+    if (p.error) toast.error(p.error.message);
+    else setProjects(p.data || []);
+
+    if (t.error) toast.error(t.error.message);
+    else setTasks(t.data || []);
+
+    setLoading(false);
   };
 
-  /* ---------- FETCH TASKS ---------- */
-
-  const fetchTasks = async () => {
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
-
-    if (authError || !user) return;
-
-    const { data, error } = await supabase
-      .from("tasks")
-      .select("*")
-      .eq("user_id", user.id)
-      .order("created_at", { ascending: false });
-
-    if (error) toast.error(error.message);
-    else setTasks(data || []);
-  };
-
-  /* ---------- ADD PROJECT (SAFE) ---------- */
+  /* ---------- ADD PROJECT ---------- */
 
   const addProject = async () => {
     if (!newProjectTitle.trim()) {
@@ -81,22 +71,14 @@ const Projects = () => {
       return;
     }
 
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
     setAdding(true);
-
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-      toast.error("You must be logged in");
-      setAdding(false);
-      return;
-    }
 
     const { error } = await supabase.from("projects").insert({
       title: newProjectTitle,
-      user_id: user.id, // ✅ GUARANTEED VALID
+      user_id: user.id,
     });
 
     setAdding(false);
@@ -104,35 +86,42 @@ const Projects = () => {
     if (error) {
       toast.error(error.message);
     } else {
+      await logActivity(
+        user.id,
+        `Created project "${newProjectTitle}"`
+      );
       setNewProjectTitle("");
-      fetchProjects();
+      loadData();
     }
   };
 
   /* ---------- REMOVE PROJECT ---------- */
 
-  const removeProject = async (id: string) => {
-    const ok = window.confirm("Delete this project? This cannot be undone.");
+  const removeProject = async (project: Project) => {
+    const ok = window.confirm("Delete this project?");
     if (!ok) return;
 
-    const { error } = await supabase.from("projects").delete().eq("id", id);
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
 
-    if (error) toast.error(error.message);
-    else {
-      setProjects((p) => p.filter((x) => x.id !== id));
-      setTasks((t) => t.filter((x) => x.project_id !== id));
+    const { error } = await supabase
+      .from("projects")
+      .delete()
+      .eq("id", project.id);
+
+    if (error) {
+      toast.error(error.message);
+    } else {
+      await logActivity(
+        user.id,
+        `Deleted project "${project.title}"`
+      );
+      loadData();
     }
   };
 
-  /* ---------- LOAD ---------- */
-
   useEffect(() => {
-    const load = async () => {
-      setLoading(true);
-      await Promise.all([fetchProjects(), fetchTasks()]);
-      setLoading(false);
-    };
-    load();
+    loadData();
   }, []);
 
   /* ================= UI ================= */
@@ -140,7 +129,7 @@ const Projects = () => {
   return (
     <DashboardLayout>
       <div className="max-w-6xl mx-auto px-6 py-8 space-y-10">
-        {/* Header */}
+
         <div>
           <h1 className="text-2xl font-semibold">Projects</h1>
           <p className="text-sm text-muted-foreground">
@@ -164,7 +153,7 @@ const Projects = () => {
         <GlassCard className="p-6 space-y-4">
           {projects.length === 0 && (
             <p className="text-sm text-muted-foreground">
-              No projects yet. Create your first project to get started.
+              No projects yet.
             </p>
           )}
 
@@ -174,7 +163,7 @@ const Projects = () => {
               <Button
                 size="sm"
                 variant="outline"
-                onClick={() => removeProject(p.id)}
+                onClick={() => removeProject(p)}
               >
                 Remove
               </Button>
@@ -182,7 +171,7 @@ const Projects = () => {
           ))}
         </GlassCard>
 
-        {/* Tasks Board */}
+        {/* Tasks Preview */}
         {loading ? (
           <p className="text-sm text-muted-foreground">Loading…</p>
         ) : (
@@ -190,16 +179,11 @@ const Projects = () => {
             {["todo", "progress", "done"].map((status) => (
               <div key={status}>
                 <h4 className="font-medium capitalize mb-2">{status}</h4>
-
                 {tasks
                   .filter((t) => t.status === status)
                   .map((t) => (
                     <GlassCard key={t.id} className="p-3 mb-2">
-                      <div className="flex justify-between">
-                        <span>{t.title}</span>
-                        <MoreVertical className="w-4 h-4" />
-                      </div>
-
+                      <p>{t.title}</p>
                       <div className="text-xs text-muted-foreground mt-2 flex gap-1">
                         <Calendar className="w-3 h-3" />
                         {new Date(t.created_at).toLocaleDateString()}

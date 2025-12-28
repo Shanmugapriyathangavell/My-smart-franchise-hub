@@ -1,28 +1,36 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import GlassCard from "@/components/GlassCard";
-import { Scale, Globe, Shield, FileCheck, CheckCircle } from "lucide-react";
+import {
+  Scale,
+  FileCheck,
+  Database,
+  CheckCircle
+} from "lucide-react";
 
 const Compliance = () => {
   const complianceAreas = [
     {
-      icon: Globe,
-      title: "GDPR-Ready Architecture",
-      description: "Designed with data privacy principles including consent management, data portability, and right to erasure"
+      icon: Scale,
+      title: "GDPR‑Ready Architecture",
+      description:
+        "Designed with data privacy principles including consent management, data portability, and right to erasure."
     },
     {
-      icon: Shield,
+      icon: Database,
       title: "Data Protection",
-      description: "Infrastructure designed for compliance with international data protection standards"
+      description:
+        "Infrastructure aligned with international data protection and governance standards."
     },
     {
       icon: FileCheck,
       title: "Audit Trail",
-      description: "Comprehensive logging and audit capabilities for regulatory requirements"
+      description:
+        "Comprehensive logging and audit capabilities designed for regulatory requirements."
     }
   ];
 
-  const plannedCompliance = [
+  const roadmap = [
     "GDPR compliance certification",
     "CCPA readiness",
     "HIPAA compliance (where applicable)",
@@ -31,57 +39,55 @@ const Compliance = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-mesh">
+    <div className="min-h-screen bg-background">
       <Navbar />
 
-      <section className="pt-32 pb-20 px-4">
-        <div className="container mx-auto text-center">
-          <h1 className="text-5xl lg:text-6xl font-bold mb-6 animate-fade-in-up">
-            <span className="gradient-text">Compliance</span>
-          </h1>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto animate-fade-in-up" style={{ animationDelay: "0.1s" }}>
-            Our commitment to regulatory compliance and data governance
-          </p>
+      {/* Hero */}
+      <section className="pt-32 pb-20 px-4 text-center">
+        <h1 className="text-5xl font-bold mb-4">Compliance</h1>
+        <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+          Our commitment to regulatory compliance and data governance
+        </p>
+      </section>
+
+      {/* Compliance Areas */}
+      <section className="py-12 px-4">
+        <div className="container mx-auto grid md:grid-cols-3 gap-6 max-w-6xl">
+          {complianceAreas.map((item, index) => (
+            <GlassCard key={index} className="p-6 text-center">
+              <item.icon className="w-10 h-10 mx-auto mb-4 text-primary" />
+              <h3 className="text-lg font-semibold mb-2">{item.title}</h3>
+              <p className="text-sm text-muted-foreground">
+                {item.description}
+              </p>
+            </GlassCard>
+          ))}
         </div>
       </section>
 
+      {/* Roadmap */}
       <section className="py-12 px-4">
-        <div className="container mx-auto max-w-5xl">
-          <div className="grid md:grid-cols-3 gap-6 mb-12">
-            {complianceAreas.map((area, index) => (
-              <GlassCard key={index} className="p-6 text-center">
-                <div className="p-3 bg-gradient-primary rounded-lg w-fit mx-auto mb-4">
-                  <area.icon className="w-6 h-6 text-primary-foreground" />
-                </div>
-                <h3 className="text-xl font-semibold mb-2">{area.title}</h3>
-                <p className="text-muted-foreground">{area.description}</p>
-              </GlassCard>
-            ))}
-          </div>
-
+        <div className="container mx-auto max-w-4xl">
           <GlassCard className="p-8">
-            <div className="flex items-center gap-3 mb-6">
-              <Scale className="w-8 h-8 text-primary" />
-              <h2 className="text-2xl font-bold">Compliance Roadmap</h2>
-            </div>
-            
-            <p className="text-muted-foreground mb-6">
-              The following compliance certifications and standards are planned for production:
-            </p>
+            <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
+              <Scale className="w-6 h-6 text-primary" />
+              Compliance Roadmap
+            </h2>
 
-            <div className="grid md:grid-cols-2 gap-4">
-              {plannedCompliance.map((item, index) => (
-                <div key={index} className="flex items-center gap-3 p-3 glass rounded-lg">
-                  <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
+            <div className="grid md:grid-cols-2 gap-4 mb-6">
+              {roadmap.map((item, index) => (
+                <div key={index} className="flex items-center gap-3">
+                  <CheckCircle className="w-5 h-5 text-green-500" />
                   <span>{item}</span>
                 </div>
               ))}
             </div>
 
-            <p className="text-sm text-muted-foreground mt-8 p-4 bg-primary/10 rounded-lg border border-primary/20">
-              <strong className="text-foreground">Note:</strong> This is a demonstration project. 
-              Compliance features described represent the planned architecture for production deployment.
-            </p>
+            <div className="p-4 bg-muted/40 rounded-md text-sm text-muted-foreground">
+              <strong>Note:</strong> This is a demonstration project. Compliance
+              features described represent the planned architecture for a
+              production deployment.
+            </div>
           </GlassCard>
         </div>
       </section>
@@ -92,3 +98,4 @@ const Compliance = () => {
 };
 
 export default Compliance;
+

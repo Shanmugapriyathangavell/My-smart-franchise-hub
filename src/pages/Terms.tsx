@@ -5,67 +5,74 @@ import { FileText } from "lucide-react";
 
 const Terms = () => {
   return (
-    <div className="min-h-screen bg-gradient-mesh">
+    <div className="min-h-screen bg-background">
       <Navbar />
 
-      <section className="pt-32 pb-20 px-4">
-        <div className="container mx-auto text-center">
-          <h1 className="text-5xl lg:text-6xl font-bold mb-6 animate-fade-in-up">
-            Terms of <span className="gradient-text">Service</span>
-          </h1>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto animate-fade-in-up" style={{ animationDelay: "0.1s" }}>
-            Guidelines for using our platform
+      <main className="max-w-4xl mx-auto px-6 py-20">
+        <GlassCard className="p-8 space-y-6">
+          <div className="flex items-center gap-3">
+            <FileText className="w-6 h-6 text-primary" />
+            <h1 className="text-2xl font-semibold">Terms of Service</h1>
+          </div>
+
+          <div className="p-4 rounded-lg bg-muted text-sm text-muted-foreground">
+            <strong>Note:</strong> These terms are provided for demonstration
+            purposes only and do not constitute a legally binding agreement.
+          </div>
+
+          <section className="space-y-2">
+            <h2 className="font-semibold">1. Acceptance of Terms</h2>
+            <p className="text-sm text-muted-foreground">
+              By using this demo application, you acknowledge that it is a
+              frontend‑only SaaS demonstration built for learning and interviews.
+            </p>
+          </section>
+
+          <section className="space-y-2">
+            <h2 className="font-semibold">2. Use of Service</h2>
+            <p className="text-sm text-muted-foreground">
+              This application is intended to showcase UI/UX, product thinking,
+              and frontend architecture only.
+            </p>
+          </section>
+
+          <section className="space-y-2">
+            <h2 className="font-semibold">3. Account Responsibilities</h2>
+            <p className="text-sm text-muted-foreground">
+              Login and account data are simulated. No real authentication or
+              billing occurs.
+            </p>
+          </section>
+
+          <section className="space-y-2">
+            <h2 className="font-semibold">4. Intellectual Property</h2>
+            <p className="text-sm text-muted-foreground">
+              All UI components, layouts, and code are part of a personal demo
+              project and remain the property of the creator.
+            </p>
+          </section>
+
+          <section className="space-y-2">
+            <h2 className="font-semibold">5. Limitation of Liability</h2>
+            <p className="text-sm text-muted-foreground">
+              Since this is a demo project, no warranties or guarantees are
+              provided.
+            </p>
+          </section>
+
+          <section className="space-y-2">
+            <h2 className="font-semibold">6. Changes to Terms</h2>
+            <p className="text-sm text-muted-foreground">
+              These demo terms may be updated at any time for improvement or
+              presentation purposes.
+            </p>
+          </section>
+
+          <p className="text-xs text-muted-foreground pt-6">
+            Smart Franchise Hub — Built in Chennai 🇮🇳 for interview demonstration.
           </p>
-        </div>
-      </section>
-
-      <section className="py-12 px-4">
-        <div className="container mx-auto max-w-4xl">
-          <GlassCard className="p-8 md:p-12">
-            <div className="flex items-center gap-3 mb-8">
-              <FileText className="w-8 h-8 text-primary" />
-              <h2 className="text-2xl font-bold">Sample Terms of Service</h2>
-            </div>
-            
-            <div className="prose prose-invert max-w-none space-y-6 text-muted-foreground">
-              <p className="text-sm bg-primary/10 p-4 rounded-lg border border-primary/20">
-                <strong className="text-foreground">Note:</strong> This is a sample terms of service for demonstration purposes only. 
-                This is not a legally binding document.
-              </p>
-
-              <div>
-                <h3 className="text-lg font-semibold text-foreground mb-2">1. Acceptance of Terms</h3>
-                <p>By accessing or using our services, you agree to be bound by these terms and conditions.</p>
-              </div>
-
-              <div>
-                <h3 className="text-lg font-semibold text-foreground mb-2">2. Use of Services</h3>
-                <p>You agree to use our services only for lawful purposes and in accordance with these terms.</p>
-              </div>
-
-              <div>
-                <h3 className="text-lg font-semibold text-foreground mb-2">3. Account Responsibilities</h3>
-                <p>You are responsible for maintaining the confidentiality of your account credentials and all activities under your account.</p>
-              </div>
-
-              <div>
-                <h3 className="text-lg font-semibold text-foreground mb-2">4. Intellectual Property</h3>
-                <p>All content, features, and functionality are owned by us and protected by intellectual property laws.</p>
-              </div>
-
-              <div>
-                <h3 className="text-lg font-semibold text-foreground mb-2">5. Limitation of Liability</h3>
-                <p>We shall not be liable for any indirect, incidental, or consequential damages arising from your use of our services.</p>
-              </div>
-
-              <div>
-                <h3 className="text-lg font-semibold text-foreground mb-2">6. Changes to Terms</h3>
-                <p>We reserve the right to modify these terms at any time. Continued use constitutes acceptance of modified terms.</p>
-              </div>
-            </div>
-          </GlassCard>
-        </div>
-      </section>
+        </GlassCard>
+      </main>
 
       <Footer />
     </div>

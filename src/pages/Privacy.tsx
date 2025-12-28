@@ -5,62 +5,67 @@ import { Shield } from "lucide-react";
 
 const Privacy = () => {
   return (
-    <div className="min-h-screen bg-gradient-mesh">
+    <div className="min-h-screen bg-background">
       <Navbar />
 
-      <section className="pt-32 pb-20 px-4">
-        <div className="container mx-auto text-center">
-          <h1 className="text-5xl lg:text-6xl font-bold mb-6 animate-fade-in-up">
-            Privacy <span className="gradient-text">Policy</span>
-          </h1>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto animate-fade-in-up" style={{ animationDelay: "0.1s" }}>
-            How we handle and protect your information
+      <main className="max-w-4xl mx-auto px-6 py-20">
+        <GlassCard className="p-8 space-y-6">
+          <div className="flex items-center gap-3">
+            <Shield className="w-6 h-6 text-primary" />
+            <h1 className="text-2xl font-semibold">Privacy Policy</h1>
+          </div>
+
+          <div className="p-4 rounded-lg bg-muted text-sm text-muted-foreground">
+            <strong>Note:</strong> This is a sample privacy policy for demonstration
+            purposes only. This project is a UI‑only SaaS demo and is not a legally
+            binding document.
+          </div>
+
+          <section className="space-y-2">
+            <h2 className="font-semibold">1. Information We Collect</h2>
+            <p className="text-sm text-muted-foreground">
+              We collect information you provide directly, such as account details
+              and preferences, to demonstrate application workflows.
+            </p>
+          </section>
+
+          <section className="space-y-2">
+            <h2 className="font-semibold">2. How We Use Your Information</h2>
+            <p className="text-sm text-muted-foreground">
+              Information is used to improve UI flows, demonstrate dashboards,
+              and simulate real SaaS product behavior.
+            </p>
+          </section>
+
+          <section className="space-y-2">
+            <h2 className="font-semibold">3. Data Protection</h2>
+            <p className="text-sm text-muted-foreground">
+              This demo follows standard frontend security practices. No real
+              personal data is stored or processed.
+            </p>
+          </section>
+
+          <section className="space-y-2">
+            <h2 className="font-semibold">4. Your Rights</h2>
+            <p className="text-sm text-muted-foreground">
+              As this is a demonstration project, data shown is sample data only.
+              In a production environment, users would be able to manage their data
+              through account settings.
+            </p>
+          </section>
+
+          <section className="space-y-2">
+            <h2 className="font-semibold">5. Contact</h2>
+            <p className="text-sm text-muted-foreground">
+              For questions related to this demo, please use the Contact page.
+            </p>
+          </section>
+
+          <p className="text-xs text-muted-foreground pt-6">
+            Built in Chennai 🇮🇳 as an interview‑ready SaaS demonstration.
           </p>
-        </div>
-      </section>
-
-      <section className="py-12 px-4">
-        <div className="container mx-auto max-w-4xl">
-          <GlassCard className="p-8 md:p-12">
-            <div className="flex items-center gap-3 mb-8">
-              <Shield className="w-8 h-8 text-primary" />
-              <h2 className="text-2xl font-bold">Sample Privacy Policy</h2>
-            </div>
-            
-            <div className="prose prose-invert max-w-none space-y-6 text-muted-foreground">
-              <p className="text-sm bg-primary/10 p-4 rounded-lg border border-primary/20">
-                <strong className="text-foreground">Note:</strong> This is a sample privacy policy for demonstration purposes only. 
-                This is not a legally binding document.
-              </p>
-
-              <div>
-                <h3 className="text-lg font-semibold text-foreground mb-2">1. Information We Collect</h3>
-                <p>We collect information you provide directly, such as account details, preferences, and usage data to improve our services.</p>
-              </div>
-
-              <div>
-                <h3 className="text-lg font-semibold text-foreground mb-2">2. How We Use Your Information</h3>
-                <p>Your information is used to provide, maintain, and improve our services, communicate with you, and ensure platform security.</p>
-              </div>
-
-              <div>
-                <h3 className="text-lg font-semibold text-foreground mb-2">3. Data Protection</h3>
-                <p>We implement industry-standard security measures to protect your personal information from unauthorized access or disclosure.</p>
-              </div>
-
-              <div>
-                <h3 className="text-lg font-semibold text-foreground mb-2">4. Your Rights</h3>
-                <p>You have the right to access, correct, or delete your personal information at any time through your account settings.</p>
-              </div>
-
-              <div>
-                <h3 className="text-lg font-semibold text-foreground mb-2">5. Contact Us</h3>
-                <p>For any privacy-related questions, please contact us through our contact page.</p>
-              </div>
-            </div>
-          </GlassCard>
-        </div>
-      </section>
+        </GlassCard>
+      </main>
 
       <Footer />
     </div>

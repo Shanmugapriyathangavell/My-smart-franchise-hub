@@ -1,87 +1,93 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import GlassCard from "@/components/GlassCard";
-import { Shield, Lock, Eye, Server, CheckCircle } from "lucide-react";
+import {
+  ShieldCheck,
+  Lock,
+  Server,
+  CheckCircle
+} from "lucide-react";
 
 const Security = () => {
-  const securityFeatures = [
+  const securityPillars = [
     {
       icon: Lock,
       title: "Secure Authentication",
-      description: "Industry-standard authentication flows with encrypted credential handling"
+      description:
+        "Industry-standard authentication flows with encrypted credential handling and protected routes."
     },
     {
-      icon: Eye,
+      icon: ShieldCheck,
       title: "Data Protection",
-      description: "End-to-end encryption for sensitive data in transit and at rest"
+      description:
+        "End-to-end encryption for sensitive data in transit and at rest, following best practices."
     },
     {
       icon: Server,
       title: "Infrastructure Security",
-      description: "Cloud infrastructure with regular security audits and monitoring"
+      description:
+        "Cloud-based infrastructure designed with regular monitoring, backups, and access controls."
     }
   ];
 
   const roadmap = [
     "SOC 2 Type II certification",
-    "Regular penetration testing",
     "24/7 security monitoring",
-    "Incident response procedures",
-    "Data backup and recovery"
+    "Data backup and recovery",
+    "Regular penetration testing",
+    "Incident response procedures"
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-mesh">
+    <div className="min-h-screen bg-background">
       <Navbar />
 
-      <section className="pt-32 pb-20 px-4">
-        <div className="container mx-auto text-center">
-          <h1 className="text-5xl lg:text-6xl font-bold mb-6 animate-fade-in-up">
-            <span className="gradient-text">Security</span>
-          </h1>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto animate-fade-in-up" style={{ animationDelay: "0.1s" }}>
-            How we protect your data and ensure platform security
-          </p>
+      {/* Hero */}
+      <section className="pt-32 pb-20 px-4 text-center">
+        <h1 className="text-5xl font-bold mb-4">Security</h1>
+        <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+          How we protect your data and ensure platform security
+        </p>
+      </section>
+
+      {/* Security Pillars */}
+      <section className="py-12 px-4">
+        <div className="container mx-auto grid md:grid-cols-3 gap-6 max-w-6xl">
+          {securityPillars.map((item, index) => (
+            <GlassCard key={index} className="p-6 text-center">
+              <item.icon className="w-10 h-10 mx-auto mb-4 text-primary" />
+              <h3 className="text-lg font-semibold mb-2">{item.title}</h3>
+              <p className="text-sm text-muted-foreground">
+                {item.description}
+              </p>
+            </GlassCard>
+          ))}
         </div>
       </section>
 
+      {/* Roadmap */}
       <section className="py-12 px-4">
-        <div className="container mx-auto max-w-5xl">
-          <div className="grid md:grid-cols-3 gap-6 mb-12">
-            {securityFeatures.map((feature, index) => (
-              <GlassCard key={index} className="p-6 text-center">
-                <div className="p-3 bg-gradient-primary rounded-lg w-fit mx-auto mb-4">
-                  <feature.icon className="w-6 h-6 text-primary-foreground" />
-                </div>
-                <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
-                <p className="text-muted-foreground">{feature.description}</p>
-              </GlassCard>
-            ))}
-          </div>
-
+        <div className="container mx-auto max-w-4xl">
           <GlassCard className="p-8">
-            <div className="flex items-center gap-3 mb-6">
-              <Shield className="w-8 h-8 text-primary" />
-              <h2 className="text-2xl font-bold">Production Security Roadmap</h2>
-            </div>
-            
-            <p className="text-muted-foreground mb-6">
-              The following security measures are planned for the production deployment of this application:
-            </p>
+            <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
+              <ShieldCheck className="w-6 h-6 text-primary" />
+              Production Security Roadmap
+            </h2>
 
-            <div className="grid md:grid-cols-2 gap-4">
+            <div className="grid md:grid-cols-2 gap-4 mb-6">
               {roadmap.map((item, index) => (
-                <div key={index} className="flex items-center gap-3 p-3 glass rounded-lg">
-                  <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
+                <div key={index} className="flex items-center gap-3">
+                  <CheckCircle className="w-5 h-5 text-green-500" />
                   <span>{item}</span>
                 </div>
               ))}
             </div>
 
-            <p className="text-sm text-muted-foreground mt-8 p-4 bg-primary/10 rounded-lg border border-primary/20">
-              <strong className="text-foreground">Note:</strong> This is a demonstration project. 
-              The security features described represent the planned architecture for a production deployment.
-            </p>
+            <div className="p-4 bg-muted/40 rounded-md text-sm text-muted-foreground">
+              <strong>Note:</strong> This is a demonstration project. The security
+              features described represent the planned architecture for a
+              production deployment.
+            </div>
           </GlassCard>
         </div>
       </section>

@@ -12,7 +12,7 @@ const Landing = () => {
       <Navbar />
 
       <main className="max-w-6xl mx-auto px-6 py-20 space-y-24">
-        {/* Hero */}
+        {/* ================= HERO ================= */}
         <section className="grid md:grid-cols-2 gap-12 items-center">
           {/* Text */}
           <div className="space-y-6">
@@ -23,6 +23,12 @@ const Landing = () => {
             <p className="text-sm text-muted-foreground max-w-md">
               A simple internal tool to track projects, tasks, and franchise
               performance over time.
+            </p>
+
+            {/* Chennai subtitle */}
+            <p className="text-sm text-muted-foreground max-w-md">
+              Built with ❤️ in Chennai — inspired by fast‑moving teams, busy
+              streets, and everyday hustle.
             </p>
 
             <div className="flex gap-3">
@@ -43,13 +49,13 @@ const Landing = () => {
           <div>
             <img
               src={chennaiImage}
-              alt="Chennai city work environment"
+              alt="Everyday work life in Chennai"
               className="rounded-lg object-cover w-full"
             />
           </div>
         </section>
 
-        {/* What it does */}
+        {/* ================= WHAT IT DOES ================= */}
         <section className="grid md:grid-cols-3 gap-6">
           <GlassCard className="p-6 space-y-2" hover={false}>
             <h3 className="text-lg font-medium text-foreground">Projects</h3>
@@ -73,7 +79,32 @@ const Landing = () => {
           </GlassCard>
         </section>
 
-        {/* Footer note */}
+        {/* ================= CHENNAI TOUCH ================= */}
+        <section className="grid md:grid-cols-3 gap-6">
+          <GlassCard className="p-6 space-y-2" hover={false}>
+            <h3 className="text-lg font-medium">Fast‑paced</h3>
+            <p className="text-sm text-muted-foreground">
+              Inspired by Chennai traffic — quick decisions, constant movement,
+              real‑world execution.
+            </p>
+          </GlassCard>
+
+          <GlassCard className="p-6 space-y-2" hover={false}>
+            <h3 className="text-lg font-medium">Reliable</h3>
+            <p className="text-sm text-muted-foreground">
+              Like filter coffee ☕ — simple, consistent, and dependable.
+            </p>
+          </GlassCard>
+
+          <GlassCard className="p-6 space-y-2" hover={false}>
+            <h3 className="text-lg font-medium">People‑first</h3>
+            <p className="text-sm text-muted-foreground">
+              Designed for real teams, not just dashboards.
+            </p>
+          </GlassCard>
+        </section>
+
+        {/* ================= FOOTER NOTE ================= */}
         <section className="text-xs text-muted-foreground">
           Built as a practical internal tool. Data shown may be sample data.
         </section>

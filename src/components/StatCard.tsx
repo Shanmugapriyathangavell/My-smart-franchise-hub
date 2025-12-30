@@ -8,6 +8,12 @@ interface StatCardProps {
 }
 
 const StatCard = ({ title, value, icon: Icon }: StatCardProps) => {
+  const formattedValue = value.toLocaleString("en-IN", {
+    style: "currency",
+    currency: "INR",
+    maximumFractionDigits: 0,
+  });
+
   return (
     <GlassCard className="p-6" hover={false}>
       <div className="flex items-center gap-4">
@@ -17,7 +23,7 @@ const StatCard = ({ title, value, icon: Icon }: StatCardProps) => {
 
         <div>
           <p className="text-sm text-muted-foreground">{title}</p>
-          <p className="text-2xl font-bold">{value}</p>
+          <p className="text-2xl font-bold">{formattedValue}</p>
         </div>
       </div>
     </GlassCard>

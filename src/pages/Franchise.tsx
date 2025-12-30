@@ -5,18 +5,39 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabase";
 import { toast } from "sonner";
+import { franchiseSchema } from "@/validation/schemas";
+
+/* ================= TYPES ================= */
 
 interface Franchise {
   id: string;
   name: string;
   created_at: string;
+  old_todos: number; // derived from SQL function
 }
+
+/* ================= HELPERS ================= */
+
+const getHealthStatus = (count: number) => {
+  if (count > 5) {
+    return { label: "Needs Attention", color: "bg-red-500" };
+  }
+  if (count > 0) {
+    return { label: "At Risk", color: "bg-yellow-500" };
+  }
+  return { label: "Healthy", color: "bg-green-500" };
+};
+
+/* ================= COMPONENT ================= */
 
 const Franchise = () => {
   const [items, setItems] = useState<Franchise[]>([]);
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(true);
   const [adding, setAdding] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
+
+  /* ---------- LOAD FRANCHISES + HEALTH ---------- */
 
   const load = async () => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -24,11 +45,10 @@ const Franchise = () => {
 
     setLoading(true);
 
-    const { data, error } = await supabase
-      .from("franchises")
-      .select("*")
-      .eq("user_id", user.id)
-      .order("created_at", { ascending: false });
+    const { data, error } = await supabase.rpc(
+      "franchise_health_overview",
+      { uid: user.id }
+    );
 
     if (error) {
       toast.error(error.message);
@@ -39,8 +59,17 @@ const Franchise = () => {
     setLoading(false);
   };
 
+  /* ---------- ADD FRANCHISE (ZOD PROTECTED) ---------- */
+
   const add = async () => {
-    if (!name.trim()) return;
+    setErrorMsg("");
+
+    const result = franchiseSchema.safeParse({ name });
+
+    if (!result.success) {
+      setErrorMsg(result.error.errors[0].message);
+      return;
+    }
 
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
@@ -48,7 +77,7 @@ const Franchise = () => {
     setAdding(true);
 
     const { error } = await supabase.from("franchises").insert({
-      name: name.trim(),
+      name: result.data.name,
       user_id: user.id,
     });
 
@@ -67,14 +96,17 @@ const Franchise = () => {
     load();
   }, []);
 
+  /* ================= UI ================= */
+
   return (
     <DashboardLayout>
       <div className="max-w-5xl mx-auto px-6 py-8 space-y-8">
+
         {/* Header */}
         <div>
           <h1 className="text-2xl font-semibold">Franchises</h1>
           <p className="text-sm text-muted-foreground">
-            Track and manage franchise locations.
+            Track and monitor branch performance.
           </p>
         </div>
 
@@ -85,10 +117,12 @@ const Franchise = () => {
             value={name}
             onChange={(e) => setName(e.target.value)}
           />
-          <Button
-            onClick={add}
-            disabled={!name.trim() || adding}
-          >
+
+          {errorMsg && (
+            <p className="text-sm text-red-500">{errorMsg}</p>
+          )}
+
+          <Button onClick={add} disabled={adding}>
             {adding ? "Adding..." : "Add franchise"}
           </Button>
         </GlassCard>
@@ -107,24 +141,35 @@ const Franchise = () => {
             </p>
           )}
 
-          {!loading &&
-            items.map((f) => (
+          {!loading && items.map((f) => {
+            const health = getHealthStatus(f.old_todos);
+
+            return (
               <div
                 key={f.id}
-                className="flex justify-between text-sm border-b border-border/50 py-2"
+                className="flex justify-between items-center border-b border-border/50 py-2"
               >
-                <span className="font-medium">{f.name}</span>
-                <span className="text-muted-foreground">
-                  {new Date(f.created_at).toLocaleDateString()}
+                <div>
+                  <p className="font-medium">{f.name}</p>
+                  <p className="text-xs text-muted-foreground">
+                    Created {new Date(f.created_at).toLocaleDateString()}
+                  </p>
+                </div>
+
+                <span
+                  className={`text-xs text-white px-2 py-1 rounded ${health.color}`}
+                >
+                  {health.label}
                 </span>
               </div>
-            ))}
+            );
+          })}
         </GlassCard>
 
-        {/* Interview note */}
+        {/* Interview Note */}
         <p className="text-xs text-muted-foreground">
-          Franchise management UI is complete. Additional actions
-          (edit, delete, analytics) can be added as product evolves.
+          Franchise health is computed via PostgreSQL analytics (task age +
+          status) and consumed through a secure RPC layer.
         </p>
       </div>
     </DashboardLayout>
@@ -132,4 +177,3 @@ const Franchise = () => {
 };
 
 export default Franchise;
-

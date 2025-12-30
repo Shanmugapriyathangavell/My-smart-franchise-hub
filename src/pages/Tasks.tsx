@@ -6,6 +6,24 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabase";
 import { logActivity } from "@/lib/activity";
 import { toast } from "sonner";
+import { taskSchema } from "@/validation/schemas";
+
+/* dnd-kit */
+import {
+  DndContext,
+  closestCenter,
+  DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+
+/* Skeleton */
+import Skeleton from "react-loading-skeleton";
+import "react-loading-skeleton/dist/skeleton.css";
 
 /* ========= TYPES ========= */
 
@@ -22,6 +40,30 @@ interface Task {
   created_at: string;
 }
 
+/* ========= DRAGGABLE CARD ========= */
+
+const TaskCard = ({ task }: { task: Task }) => {
+  const { attributes, listeners, setNodeRef, transform, transition } =
+    useSortable({ id: task.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
+      className="p-3 bg-white rounded-md border shadow-sm text-sm cursor-grab"
+    >
+      {task.title}
+    </div>
+  );
+};
+
 /* ========= COMPONENT ========= */
 
 const Tasks = () => {
@@ -30,6 +72,9 @@ const Tasks = () => {
   const [loading, setLoading] = useState(true);
   const [title, setTitle] = useState("");
   const [projectId, setProjectId] = useState("");
+  const [errorMsg, setErrorMsg] = useState("");
+
+  /* ---------- LOAD DATA ---------- */
 
   const load = async () => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -51,11 +96,19 @@ const Tasks = () => {
     setLoading(false);
   };
 
-  /* ---------- ADD TASK ---------- */
+  /* ---------- ADD TASK (ZOD) ---------- */
 
   const addTask = async () => {
-    if (!title.trim() || !projectId) {
-      toast.error("Enter task and select project");
+    setErrorMsg("");
+
+    const result = taskSchema.safeParse({ title });
+    if (!result.success) {
+      setErrorMsg(result.error.errors[0].message);
+      return;
+    }
+
+    if (!projectId) {
+      setErrorMsg("Please select a project");
       return;
     }
 
@@ -63,7 +116,7 @@ const Tasks = () => {
     if (!user) return;
 
     const { error } = await supabase.from("tasks").insert({
-      title,
+      title: result.data.title,
       project_id: projectId,
       user_id: user.id,
       status: "todo",
@@ -72,41 +125,73 @@ const Tasks = () => {
     if (error) {
       toast.error(error.message);
     } else {
-      await logActivity(user.id, `Added task "${title}"`);
+      await logActivity(user.id, `Added task "${result.data.title}"`);
+      toast.success("Task added");
       setTitle("");
       setProjectId("");
       load();
     }
   };
 
-  /* ---------- UPDATE STATUS ---------- */
+  /* ---------- DRAG END (OPTIMISTIC UI) ---------- */
 
-  const updateStatus = async (task: Task, status: Task["status"]) => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
+  const onDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over) return;
 
-    await supabase.from("tasks").update({ status }).eq("id", task.id);
+    const taskId = active.id as string;
+    const newStatus = over.id as Task["status"];
 
-    await logActivity(
-      user.id,
-      `Marked task "${task.title}" as ${status}`
+    const oldTask = tasks.find((t) => t.id === taskId);
+    if (!oldTask || oldTask.status === newStatus) return;
+
+    /* 1️⃣ Optimistic UI */
+    setTasks((prev) =>
+      prev.map((t) =>
+        t.id === taskId ? { ...t, status: newStatus } : t
+      )
     );
 
-    load();
+    /* 2️⃣ DB update */
+    const { error } = await supabase
+      .from("tasks")
+      .update({ status: newStatus })
+      .eq("id", taskId);
+
+    /* 3️⃣ Rollback if failed */
+    if (error) {
+      toast.error("Failed to update task");
+      setTasks((prev) =>
+        prev.map((t) =>
+          t.id === taskId ? { ...t, status: oldTask.status } : t
+        )
+      );
+    } else {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await logActivity(
+          user.id,
+          `Moved task "${oldTask.title}" to ${newStatus}`
+        );
+      }
+    }
   };
 
   useEffect(() => {
     load();
   }, []);
 
+  /* ========= UI ========= */
+
+  const columns: Task["status"][] = ["todo", "progress", "done"];
+
   return (
     <DashboardLayout>
       <div className="max-w-6xl mx-auto px-6 py-8 space-y-8">
-
         <div>
           <h1 className="text-2xl font-semibold">Tasks</h1>
           <p className="text-sm text-muted-foreground">
-            Tasks belong to projects and track work progress.
+            Drag tasks between columns to update status.
           </p>
         </div>
 
@@ -131,64 +216,50 @@ const Tasks = () => {
             ))}
           </select>
 
+          {errorMsg && (
+            <p className="text-sm text-red-500">{errorMsg}</p>
+          )}
+
           <Button onClick={addTask}>Add task</Button>
         </GlassCard>
 
-        {/* Task Board */}
+        {/* Kanban Board */}
         {loading ? (
-          <p className="text-sm text-muted-foreground">Loading…</p>
+          <Skeleton height={120} count={3} />
         ) : (
-          <div className="grid md:grid-cols-3 gap-6">
-            {["todo", "progress", "done"].map((status) => (
-              <div key={status}>
-                <h3 className="font-medium capitalize mb-3">
-                  {status === "todo"
-                    ? "To do"
-                    : status === "progress"
-                    ? "In progress"
-                    : "Completed"}
-                </h3>
+          <DndContext
+            collisionDetection={closestCenter}
+            onDragEnd={onDragEnd}
+          >
+            <div className="grid md:grid-cols-3 gap-6">
+              {columns.map((status) => (
+                <div key={status}>
+                  <h3 className="font-medium capitalize mb-3">
+                    {status === "todo"
+                      ? "To do"
+                      : status === "progress"
+                      ? "In progress"
+                      : "Completed"}
+                  </h3>
 
-                {tasks
-                  .filter((t) => t.status === status)
-                  .map((t) => (
-                    <GlassCard key={t.id} className="p-3 mb-2">
-                      <p className="text-sm">{t.title}</p>
-
-                      <div className="flex gap-2 mt-2">
-                        {status !== "todo" && (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => updateStatus(t, "todo")}
-                          >
-                            Todo
-                          </Button>
-                        )}
-                        {status !== "progress" && (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => updateStatus(t, "progress")}
-                          >
-                            Progress
-                          </Button>
-                        )}
-                        {status !== "done" && (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => updateStatus(t, "done")}
-                          >
-                            Done
-                          </Button>
-                        )}
-                      </div>
-                    </GlassCard>
-                  ))}
-              </div>
-            ))}
-          </div>
+                  <SortableContext
+                    items={tasks
+                      .filter((t) => t.status === status)
+                      .map((t) => t.id)}
+                    strategy={verticalListSortingStrategy}
+                  >
+                    <div className="space-y-2 min-h-[100px]">
+                      {tasks
+                        .filter((t) => t.status === status)
+                        .map((t) => (
+                          <TaskCard key={t.id} task={t} />
+                        ))}
+                    </div>
+                  </SortableContext>
+                </div>
+              ))}
+            </div>
+          </DndContext>
         )}
       </div>
     </DashboardLayout>

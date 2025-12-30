@@ -7,6 +7,7 @@ import { Calendar } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { logActivity } from "@/lib/activity";
 import { toast } from "sonner";
+import { projectSchema } from "@/validation/schemas";
 
 /* ================= TYPES ================= */
 
@@ -32,6 +33,7 @@ const Projects = () => {
   const [loading, setLoading] = useState(true);
   const [adding, setAdding] = useState(false);
   const [newProjectTitle, setNewProjectTitle] = useState("");
+  const [errorMsg, setErrorMsg] = useState("");
 
   /* ---------- LOAD DATA ---------- */
 
@@ -63,11 +65,17 @@ const Projects = () => {
     setLoading(false);
   };
 
-  /* ---------- ADD PROJECT ---------- */
+  /* ---------- ADD PROJECT (ZOD PROTECTED) ---------- */
 
   const addProject = async () => {
-    if (!newProjectTitle.trim()) {
-      toast.error("Project name is required");
+    setErrorMsg("");
+
+    const result = projectSchema.safeParse({
+      name: newProjectTitle,
+    });
+
+    if (!result.success) {
+      setErrorMsg(result.error.errors[0].message);
       return;
     }
 
@@ -77,7 +85,7 @@ const Projects = () => {
     setAdding(true);
 
     const { error } = await supabase.from("projects").insert({
-      title: newProjectTitle,
+      title: result.data.name,
       user_id: user.id,
     });
 
@@ -88,7 +96,7 @@ const Projects = () => {
     } else {
       await logActivity(
         user.id,
-        `Created project "${newProjectTitle}"`
+        `Created project "${result.data.name}"`
       );
       setNewProjectTitle("");
       loadData();
@@ -144,6 +152,11 @@ const Projects = () => {
             value={newProjectTitle}
             onChange={(e) => setNewProjectTitle(e.target.value)}
           />
+
+          {errorMsg && (
+            <p className="text-sm text-red-500">{errorMsg}</p>
+          )}
+
           <Button onClick={addProject} disabled={adding}>
             {adding ? "Saving…" : "Add project"}
           </Button>
@@ -171,7 +184,7 @@ const Projects = () => {
           ))}
         </GlassCard>
 
-        {/* Tasks Preview */}
+        {/* Tasks Preview (read-only, no Zod needed) */}
         {loading ? (
           <p className="text-sm text-muted-foreground">Loading…</p>
         ) : (

@@ -33,6 +33,7 @@ const getHealthStatus = (count: number) => {
 const Franchise = () => {
   const [items, setItems] = useState<Franchise[]>([]);
   const [name, setName] = useState("");
+  const [search, setSearch] = useState(""); // 🔍 search
   const [loading, setLoading] = useState(true);
   const [adding, setAdding] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
@@ -40,7 +41,9 @@ const Franchise = () => {
   /* ---------- LOAD FRANCHISES + HEALTH ---------- */
 
   const load = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
     if (!user) return;
 
     setLoading(true);
@@ -71,7 +74,9 @@ const Franchise = () => {
       return;
     }
 
-    const { data: { user } } = await supabase.auth.getUser();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
     if (!user) return;
 
     setAdding(true);
@@ -127,6 +132,15 @@ const Franchise = () => {
           </Button>
         </GlassCard>
 
+        {/* Search */}
+        {!loading && items.length > 0 && (
+          <Input
+            placeholder="Search franchises…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        )}
+
         {/* Franchise List */}
         <GlassCard className="p-5 space-y-3" hover={false}>
           {loading && (
@@ -135,35 +149,50 @@ const Franchise = () => {
             </p>
           )}
 
+          {/* ✅ EMPTY STATE */}
           {!loading && items.length === 0 && (
-            <p className="text-sm text-muted-foreground">
-              No franchises yet. Add your first franchise above.
-            </p>
+            <div className="text-center py-10 space-y-4">
+              <h3 className="text-lg font-semibold">Welcome 👋</h3>
+              <p className="text-sm text-muted-foreground max-w-md mx-auto">
+                You haven’t added any franchise locations yet.
+                Start by creating your first branch to manage projects and tasks.
+              </p>
+              <Button onClick={() => document.querySelector("input")?.focus()}>
+                Add your first franchise
+              </Button>
+            </div>
           )}
 
-          {!loading && items.map((f) => {
-            const health = getHealthStatus(f.old_todos);
+          {/* ✅ FILTERED LIST */}
+          {!loading &&
+            items
+              .filter((f) =>
+                f.name.toLowerCase().includes(search.toLowerCase())
+              )
+              .map((f) => {
+                const health = getHealthStatus(f.old_todos);
 
-            return (
-              <div
-                key={f.id}
-                className="flex justify-between items-center border-b border-border/50 py-2"
-              >
-                <div>
-                  <p className="font-medium">{f.name}</p>
-                  <p className="text-xs text-muted-foreground">
-                    Created {new Date(f.created_at).toLocaleDateString()}
-                  </p>
-                </div>
+                return (
+                  <div
+                    key={f.id}
+                    className="flex justify-between items-center border-b border-border/50 py-2"
+                  >
+                    <div>
+                      <p className="font-medium">{f.name}</p>
+                      <p className="text-xs text-muted-foreground">
+                        Created{" "}
+                        {new Date(f.created_at).toLocaleDateString()}
+                      </p>
+                    </div>
 
-                <span
-                  className={`text-xs text-white px-2 py-1 rounded ${health.color}`}
-                >
-                  {health.label}
-                </span>
-              </div>
-            );
-          })}
+                    <span
+                      className={`text-xs text-white px-2 py-1 rounded ${health.color}`}
+                    >
+                      {health.label}
+                    </span>
+                  </div>
+                );
+              })}
         </GlassCard>
 
         {/* Interview Note */}

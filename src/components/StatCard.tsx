@@ -5,14 +5,23 @@ interface StatCardProps {
   title: string;
   value: number;
   icon: LucideIcon;
+  type?: "count" | "currency"; // 👈 NEW
 }
 
-const StatCard = ({ title, value, icon: Icon }: StatCardProps) => {
-  const formattedValue = value.toLocaleString("en-IN", {
-    style: "currency",
-    currency: "INR",
-    maximumFractionDigits: 0,
-  });
+const StatCard = ({
+  title,
+  value,
+  icon: Icon,
+  type = "count",
+}: StatCardProps) => {
+  const displayValue =
+    type === "currency"
+      ? value.toLocaleString("en-IN", {
+          style: "currency",
+          currency: "INR",
+          maximumFractionDigits: 0,
+        })
+      : value.toString();
 
   return (
     <GlassCard className="p-6" hover={false}>
@@ -23,7 +32,7 @@ const StatCard = ({ title, value, icon: Icon }: StatCardProps) => {
 
         <div>
           <p className="text-sm text-muted-foreground">{title}</p>
-          <p className="text-2xl font-bold">{formattedValue}</p>
+          <p className="text-2xl font-bold">{displayValue}</p>
         </div>
       </div>
     </GlassCard>

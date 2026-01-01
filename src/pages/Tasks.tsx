@@ -13,6 +13,7 @@ import {
   DndContext,
   closestCenter,
   DragEndEvent,
+  useDroppable,
 } from "@dnd-kit/core";
 import {
   SortableContext,
@@ -64,6 +65,24 @@ const TaskCard = ({ task }: { task: Task }) => {
   );
 };
 
+/* ========= DROPPABLE COLUMN (FIX) ========= */
+
+const DroppableColumn = ({
+  id,
+  children,
+}: {
+  id: Task["status"];
+  children: React.ReactNode;
+}) => {
+  const { setNodeRef } = useDroppable({ id });
+
+  return (
+    <div ref={setNodeRef} className="space-y-2 min-h-[120px]">
+      {children}
+    </div>
+  );
+};
+
 /* ========= COMPONENT ========= */
 
 const Tasks = () => {
@@ -96,7 +115,7 @@ const Tasks = () => {
     setLoading(false);
   };
 
-  /* ---------- ADD TASK (ZOD) ---------- */
+  /* ---------- ADD TASK ---------- */
 
   const addTask = async () => {
     setErrorMsg("");
@@ -145,20 +164,19 @@ const Tasks = () => {
     const oldTask = tasks.find((t) => t.id === taskId);
     if (!oldTask || oldTask.status === newStatus) return;
 
-    /* 1️⃣ Optimistic UI */
+    /* Optimistic UI */
     setTasks((prev) =>
       prev.map((t) =>
         t.id === taskId ? { ...t, status: newStatus } : t
       )
     );
 
-    /* 2️⃣ DB update */
+    /* DB update */
     const { error } = await supabase
       .from("tasks")
       .update({ status: newStatus })
       .eq("id", taskId);
 
-    /* 3️⃣ Rollback if failed */
     if (error) {
       toast.error("Failed to update task");
       setTasks((prev) =>
@@ -248,13 +266,13 @@ const Tasks = () => {
                       .map((t) => t.id)}
                     strategy={verticalListSortingStrategy}
                   >
-                    <div className="space-y-2 min-h-[100px]">
+                    <DroppableColumn id={status}>
                       {tasks
                         .filter((t) => t.status === status)
                         .map((t) => (
                           <TaskCard key={t.id} task={t} />
                         ))}
-                    </div>
+                    </DroppableColumn>
                   </SortableContext>
                 </div>
               ))}
